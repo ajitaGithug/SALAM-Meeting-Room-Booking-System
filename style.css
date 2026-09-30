@@ -1,0 +1,686 @@
+/* ===== Reset & Base ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f4f6f8;
+    color: #2c3e50;
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+/* ===== Layout ===== */
+.container {
+    max-width: 1100px; /* was 900px */
+    margin: 40px auto;
+    background: #ffffff;
+    padding: 30px 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+h2 {
+    color: #1c3f60;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e0e4e8;
+    padding-bottom: 10px;
+}
+
+/* ===== Navigation Bar ===== */
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background-color: #1c3f60;
+    padding: 0 30px;
+    transition: box-shadow 0.25s ease;
+}
+
+.navbar.scrolled {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+}
+
+.navbar-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+}
+
+.logo {
+    height: 34px;
+    width: 34px;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.nav-links a {
+    color: #cdd9e6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 14px;
+    border-radius: 6px;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.nav-links a:hover {
+    color: #ffffff;
+    background-color: rgba(255,255,255,0.08);
+}
+
+.nav-links a.active {
+    color: #ffffff;
+    background-color: rgba(255,255,255,0.14);
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 12px;
+    padding-left: 16px;
+    border-left: 1px solid rgba(255,255,255,0.15);
+}
+
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #3a6690;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.nav-username {
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.logout-link {
+    background-color: rgba(255,255,255,0.1) !important;
+    padding: 6px 12px !important;
+}
+
+.logout-link:hover {
+    background-color: rgba(220,80,80,0.35) !important;
+}
+
+/* ===== Mobile toggle ===== */
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.nav-toggle span {
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+}
+
+@media (max-width: 880px) {
+    .nav-toggle { display: flex; }
+
+    .nav-links {
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: #1c3f60;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 10px 20px 20px;
+        display: none;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+
+    .nav-links.open {
+        display: flex;
+    }
+
+    .nav-links a {
+        padding: 12px 10px;
+    }
+
+    .nav-user {
+        margin: 10px 0 0;
+        padding: 14px 10px 0;
+        border-left: none;
+        border-top: 1px solid rgba(255,255,255,0.15);
+        justify-content: space-between;
+    }
+}
+
+/* ===== Forms ===== */
+form {
+    margin-top: 10px;
+}
+
+label {
+    display: block;
+    font-weight: 600;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #34495e;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="password"],
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccd3d9;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #1c3f60;
+}
+
+button, .btn {
+    background-color: #1c3f60;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover, .btn:hover {
+    background-color: #14304a;
+}
+
+/* ===== Tables ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 10px;
+    text-align: left;
+    border-bottom: 1px solid #e0e4e8;
+    font-size: 14px;
+}
+
+th {
+    background-color: #f0f3f6;
+    color: #1c3f60;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f9fafb;
+}
+
+/* ===== Links inside content ===== */
+.container a:not(.btn):not(.action-btn):not(.week-btn) {
+    color: #1c3f60;
+    font-weight: 500;
+}
+
+.container a.btn {
+    color: #ffffff;
+}
+
+.container a.btn:hover {
+    color: #ffffff;
+}
+
+/* ===== Messages ===== */
+.error {
+    color: #c0392b;
+    background: #fdecea;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.success {
+    color: #1e7e34;
+    background: #e6f4ea;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    min-width: 0;
+}
+
+@media (max-width: 800px) {
+    .dashboard {
+        grid-template-columns: 1fr; /* stack on smaller screens */
+    }
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 25px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    min-width: 0; /* THIS is the key fix — lets this column shrink below its content's natural width */
+}
+
+/* Smooth transitions for a "fluid" feel */
+.card, button, input, select {
+    transition: all 0.2s ease-in-out;
+}
+
+button:active {
+    transform: scale(0.97);
+}
+
+#booking-message {
+    display: none;
+    margin-bottom: 15px;
+}
+
+.time-picker-wrapper {
+    overflow-x: auto;
+    margin-top: 10px;
+    border: 1px solid #ccd3d9;
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.time-picker {
+    display: flex;
+    width: max-content; /* let it be as wide as it needs, never squished */
+}
+
+.time-picker .slot {
+    flex: 0 0 auto;      /* never shrink */
+    width: 64px;         /* fixed width per slot — always enough for "8:30 AM" */
+    text-align: center;
+    padding: 10px 4px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #f9fafb;
+    border-right: 1px solid #e5e9ed;
+    user-select: none;
+    transition: background 0.15s ease;
+    white-space: nowrap;
+}
+
+.time-picker .slot:last-child {
+    border-right: none;
+}
+
+.time-picker .slot:hover {
+    background: #e0e9f2;
+}
+
+.time-picker .slot.selected-start,
+.time-picker .slot.selected-end {
+    background: #1c3f60;
+    color: #fff;
+}
+
+.time-picker .slot.in-range {
+    background: #a9c3dc;
+    color: #fff;
+}
+
+.time-picker .slot.booked {
+    background: #f5c6c6;
+    color: #a33;
+    cursor: not-allowed;
+}
+
+#week-grid .grid-cell {
+    cursor: pointer;
+    text-align: center;
+    min-width: 40px;
+    height: 30px;
+}
+#week-grid .grid-cell:hover {
+    background: #e0e9f2;
+}
+#week-grid .grid-cell.booked {
+    background: #f5c6c6;
+    cursor: not-allowed;
+}
+#week-grid .grid-cell.selected-start,
+#week-grid .grid-cell.selected-end {
+    background: #1c3f60;
+}
+#week-grid .grid-cell.in-range {
+    background: #a9c3dc;
+}
+
+.week-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0 20px;
+}
+
+.week-nav .week-btn {
+    color: #ffffff;
+}
+
+.week-btn {
+    display: inline-block;
+    background-color: #1c3f60;   /* button background */
+    color: #ffffff;              /* button text */
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.week-btn:hover {
+    background-color: #14304a;  /* slightly darker/lighter shade for hover feedback */
+}
+
+.week-btn:active {
+    transform: scale(0.96);
+}
+
+.week-btn-current {
+    background-color: #ffffff;
+    color: #1c3f60;
+    border: 1.5px solid #a6b2bd;
+}
+
+.week-btn-current:hover {
+    background-color: #f0f3f6;
+}
+
+.week-nav .week-btn-current {
+    color: #1c3f60;
+}
+
+/* ===== Filter bar ===== */
+.filter-bar {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: #f9fafb;
+    border: 1px solid #e0e4e8;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 0;
+}
+
+.filter-group {
+    flex: 1 1 180px;
+    min-width: 160px;
+}
+
+.filter-group label {
+    margin-top: 0;
+}
+
+.filter-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.filter-actions button {
+    margin-top: 0;
+}
+
+.clear-link {
+    font-size: 14px;
+    color: #667788;
+    text-decoration: none;
+}
+
+.clear-link:hover {
+    color: #1c3f60;
+    text-decoration: underline;
+}
+
+.result-count {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #667788;
+}
+
+.room-tag {
+    background-color: #eaf0f6;
+    color: #1c3f60;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ===== Login Page ===== */
+.login-page {
+    background: linear-gradient(135deg, #1c3f60 0%, #2a5580 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 40px 36px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+    animation: cardIn 0.4s ease;
+}
+
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.login-logo {
+    height: 56px;
+    width: 56px;
+    object-fit: contain;
+    margin-bottom: 14px;
+}
+
+.login-header h2 {
+    border: none;
+    padding: 0;
+    margin-bottom: 6px;
+    font-size: 22px;
+}
+
+.login-subtitle {
+    color: #7a8699;
+    font-size: 13px;
+}
+
+.input-group {
+    margin-bottom: 18px;
+}
+
+.input-group label {
+    margin-top: 0;
+}
+
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 44px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 4px;
+    margin: 0;
+    cursor: pointer;
+    color: #97a3b3;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s ease;
+}
+
+.toggle-password:hover {
+    color: #1c3f60;
+}
+
+.login-btn {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.login-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.login-footer {
+    text-align: center;
+    color: rgba(255,255,255,0.75);
+    font-size: 12px;
+    margin-top: 20px;
+    letter-spacing: 0.4px;
+}
+
+@media (max-width: 460px) {
+    .login-card {
+        padding: 32px 24px;
+    }
+}
+
+/* ===== status label ===== */
+.status-active {
+    color: #1e7e34;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.status-inactive {
+    color: #c0392b;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* ===== error button view all ===== */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #667788;
+}
+
+.empty-state p {
+    margin-bottom: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.empty-state .btn {
+    display: inline-block;
+    margin-top: 0; /* override the default button margin-top so it doesn't add extra unwanted space here */
+}
+
+/* ===== Action buttons (Edit / Cancel) ===== */
+.actions {
+    white-space: nowrap;
+}
+
+.action-btn {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #ffffff;
+    margin-right: 6px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.action-btn:hover {
+    text-decoration: none;
+}
+
+.action-btn:active {
+    transform: scale(0.95);
+}
+
+.edit-btn {
+    background-color: #e0871a;
+}
+
+.edit-btn:hover {
+    background-color: #c2740f;
+}
+
+.cancel-btn {
+    background-color: #c0392b;
+}
+
+.cancel-btn:hover {
+    background-color: #a02d20;
+}
