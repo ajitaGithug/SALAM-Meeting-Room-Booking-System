@@ -270,11 +270,23 @@ tr:hover {
 
 /* ===== Messages ===== */
 .error {
-    color: #c0392b;
-    background: #fdecea;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.error-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #c0392b;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
 }
 
 .success {
@@ -683,4 +695,46 @@ button:active {
 
 .cancel-btn:hover {
     background-color: #a02d20;
+}
+
+/* ===== Edit booking form ===== */
+.time-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.time-preview {
+    font-size: 13px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.time-preview.valid {
+    color: #1e7e34;
+}
+
+.time-preview.invalid {
+    color: #c0392b;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.form-actions button {
+    margin-top: 0;
+}
+
+.cancel-link {
+    font-size: 14px;
+    color: #667788;
+}
+
+.cancel-link:hover {
+    color: #c0392b;
 }
