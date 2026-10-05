@@ -13,7 +13,8 @@ $from = $_GET['from'] ?? $_POST['from'] ?? 'my';
 $error = "";
 
 if ($id === null) {
-    die("No booking specified.");
+    header("Location: my_bookings.php?msg=error");
+    exit;
 }
 
 // Fetch the existing booking, but only if it belongs to this staff member

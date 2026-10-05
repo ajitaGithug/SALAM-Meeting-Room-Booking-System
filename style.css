@@ -384,6 +384,20 @@ button:active {
     cursor: not-allowed;
 }
 
+/* Base table structure — currently only in the inline block */
+.week-grid {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.week-grid th,
+.week-grid td {
+    border: 1px solid #ccd3d9;
+    padding: 6px;
+    text-align: center;
+    font-size: 12px;
+}
+
 #week-grid .grid-cell {
     cursor: pointer;
     text-align: center;
@@ -397,12 +411,84 @@ button:active {
     background: #f5c6c6;
     cursor: not-allowed;
 }
-#week-grid .grid-cell.selected-start,
-#week-grid .grid-cell.selected-end {
-    background: #1c3f60;
+
+
+/*select start-end session*/
+.week-grid .cell.selected-start,
+.week-grid .cell.selected-end {
+    color: #ffffff;
 }
-#week-grid .grid-cell.in-range {
-    background: #a9c3dc;
+
+.week-grid .cell.available[data-room="Bilik Meeting"].selected-start,
+.week-grid .cell.available[data-room="Bilik Meeting"].selected-end {
+    background-color: #1c3f60;
+}
+
+.week-grid .cell.available[data-room="Bilik Meeting"].in-range {
+    background-color: #6f93b8;
+    color: #ffffff;
+}
+
+.week-grid .cell.available[data-room="Bilik Seminar"].selected-start,
+.week-grid .cell.available[data-room="Bilik Seminar"].selected-end {
+    background-color: #b5651d;
+}
+
+.week-grid .cell.available[data-room="Bilik Seminar"].in-range {
+    background-color: #d99a5c;
+    color: #ffffff;
+}
+
+/* Booked cell appearance — currently only in the inline block */
+.week-grid .cell.booked {
+    background: #f5c6c6;
+    color: #7a2323;
+    vertical-align: middle;
+    text-align: center;
+    padding: 6px 4px;
+}
+
+.booked-title {
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+.booked-staff {
+    font-size: 10px;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+/* head seminar/meeting column color */
+.week-grid th.sub-meeting {
+    background-color: #1c3f60;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.week-grid th.sub-seminar {
+    background-color: #975e1d;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Tint available cells by room */
+.week-grid .cell.available[data-room="Bilik Meeting"] {
+    background-color: #d6e4f0;
+}
+
+.week-grid .cell.available[data-room="Bilik Meeting"]:hover {
+    background-color: #b8d0e6;
+}
+
+.week-grid .cell.available[data-room="Bilik Seminar"] {
+    background-color: #f5ddc2;
+}
+
+.week-grid .cell.available[data-room="Bilik Seminar"]:hover {
+    background-color: #edc89f;
 }
 
 .week-nav {
@@ -413,7 +499,7 @@ button:active {
 }
 
 .week-nav .week-btn {
-    color: #ffffff;
+    color: #ffffff;  /*font previous, this, next week*/
 }
 
 .week-btn {
@@ -448,6 +534,27 @@ button:active {
 
 .week-nav .week-btn-current {
     color: #1c3f60;
+}
+
+/* Booking popup — currently only in the inline block */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+.popup-box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    width: 320px;
 }
 
 /* ===== Filter bar ===== */
@@ -509,121 +616,391 @@ button:active {
     white-space: nowrap;
 }
 
-/* ===== Login Page ===== */
+
+
+
+/* ===================================================
+   ===== Login Page - Modern & Interactive UI =====
+=================================================== */
+
 .login-page {
-    background: linear-gradient(135deg, #1c3f60 0%, #2a5580 100%);
+    position: relative;
     min-height: 100vh;
+    background: #0d1e30;
+    background: radial-gradient(circle at 15% 20%, #1c3f60 0%, #0d1f33 60%, #081422 100%);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px 16px;
+    overflow: hidden;
+}
+
+/* Ambient Background Lights */
+.bg-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    opacity: 0.45;
+    z-index: 1;
+}
+
+.bg-glow-1 {
+    width: 380px;
+    height: 380px;
+    background: radial-gradient(circle, #2a5f94, transparent);
+    top: -80px;
+    right: -60px;
+}
+
+.bg-glow-2 {
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, #164673, transparent);
+    bottom: -100px;
+    left: -80px;
 }
 
 .login-wrapper {
+    position: relative;
+    z-index: 2;
     width: 100%;
-    max-width: 400px;
+    max-width: 430px;
 }
 
+/* Card Container */
 .login-card {
     background: #ffffff;
-    border-radius: 14px;
-    padding: 40px 36px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.25);
-    animation: cardIn 0.4s ease;
+    border-radius: 18px;
+    padding: 40px 34px;
+    box-shadow: 0 24px 60px -12px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: cardEntrance 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes cardIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to   { opacity: 1; transform: translateY(0); }
+@keyframes cardEntrance {
+    from { opacity: 0; transform: translateY(18px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Gentle shake animation when login fails */
+.login-card.has-error {
+    animation: shake 0.4s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+}
+
+/* Header */
 .login-header {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 26px;
+}
+
+.logo-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background: #f4f7fb;
+    margin-bottom: 14px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .login-logo {
-    height: 56px;
-    width: 56px;
+    height: 48px;
+    width: 48px;
     object-fit: contain;
-    margin-bottom: 14px;
 }
 
 .login-header h2 {
     border: none;
     padding: 0;
     margin-bottom: 6px;
-    font-size: 22px;
+    font-size: 23px;
+    font-weight: 700;
+    color: #172b4d;
+    letter-spacing: -0.3px;
 }
 
 .login-subtitle {
-    color: #7a8699;
-    font-size: 13px;
+    color: #6b778c;
+    font-size: 13.5px;
 }
 
+/* Banners (Errors & Alerts) */
+.alert-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    animation: alertFade 0.25s ease;
+}
+
+@keyframes alertFade {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fee2e2;
+}
+
+.alert-warning {
+    background-color: #fffbeb;
+    color: #92400e;
+    border: 1px solid #fef3c7;
+}
+
+/* Input Elements */
 .input-group {
-    margin-bottom: 18px;
+    margin-bottom: 20px;
 }
 
 .input-group label {
-    margin-top: 0;
+    margin: 0 0 7px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #253858;
 }
 
-.password-wrapper {
+.input-field-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
 }
 
-.password-wrapper input {
-    padding-right: 44px;
+.field-icon {
+    position: absolute;
+    left: 14px;
+    display: flex;
+    align-items: center;
+    color: #97a3b3;
+    pointer-events: none;
+    transition: color 0.2s ease;
+    z-index: 2;
+}
+
+.input-field-wrapper input {
+    width: 100%;
+    padding: 12px 14px 12px 42px !important;
+    border: 1.5px solid #dfe1e6;
+    border-radius: 9px;
+    font-size: 14px;
+    color: #172b4d;
+    background: #fbfcfd;
+    transition: all 0.2s ease;
+}
+
+.input-field-wrapper input:hover {
+    border-color: #c1c7d0;
+    background: #ffffff;
+}
+
+.input-field-wrapper input:focus {
+    outline: none;
+    border-color: #1c3f60;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(28, 63, 96, 0.12);
+}
+
+/* Light up icon on focus */
+.input-field-wrapper:focus-within .field-icon {
+    color: #1c3f60;
+}
+
+/* Password eye button (Bug fix & smooth hover) */
+.password-wrapper input,
+.input-field-wrapper input[type="password"],
+.input-field-wrapper input[type="text"]:has(~ .toggle-password) {
+    padding-right: 42px !important;
 }
 
 .toggle-password {
     position: absolute;
-    right: 10px;
+    right: 8px;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
+    background: transparent !important;   /* Prevent blue block */
     border: none;
-    padding: 4px;
-    margin: 0;
+    outline: none;
+    padding: 7px;
+    margin: 0 !important;                /* Prevent inherited margin */
     cursor: pointer;
-    color: #97a3b3;
-    display: flex;
+    color: #8c9ba5;
+    display: inline-flex;
     align-items: center;
-    transition: color 0.15s ease;
+    justify-content: center;
+    border-radius: 7px;
+    transition: color 0.18s ease, background-color 0.18s ease, transform 0.12s ease;
+    z-index: 3;
 }
 
 .toggle-password:hover {
+    background-color: rgba(28, 63, 96, 0.08) !important;
     color: #1c3f60;
 }
 
+.toggle-password:active {
+    transform: translateY(-50%) scale(0.92) !important; /* Keep centered */
+    background-color: rgba(28, 63, 96, 0.14) !important;
+}
+
+.toggle-password svg {
+    display: block;
+    pointer-events: none;
+}
+
+/* Caps Lock Live Indicator */
+.caps-warning {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: #d97706;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.caps-warning.visible {
+    display: flex;
+}
+
+/* Remember Me Checkbox */
+.form-utilities {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: -4px 0 20px 0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    font-size: 13px;
+    color: #42526e;
+    user-select: none;
+}
+
+.checkbox-container input {
+    opacity: 0;
+    position: absolute;
+    cursor: pointer;
+}
+
+.checkmark {
+    width: 17px;
+    height: 17px;
+    background-color: #f4f5f7;
+    border: 1.5px solid #dfe1e6;
+    border-radius: 4px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.18s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    border-color: #1c3f60;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #1c3f60;
+    border-color: #1c3f60;
+}
+
+.checkbox-container input:checked ~ .checkmark::after {
+    content: "";
+    display: block;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    margin-bottom: 2px;
+}
+
+/* Submit Button & Loader */
 .login-btn {
     width: 100%;
     margin-top: 8px;
-    padding: 12px;
+    padding: 13px;
     font-size: 15px;
     font-weight: 600;
     letter-spacing: 0.3px;
+    border-radius: 9px;
+    background-color: #1c3f60;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(28, 63, 96, 0.25);
+    transition: background-color 0.2s ease, transform 0.12s ease, box-shadow 0.2s ease;
+}
+
+.login-btn:hover {
+    background-color: #132e48;
+    box-shadow: 0 6px 18px rgba(28, 63, 96, 0.35);
+}
+
+.login-btn:active {
+    transform: scale(0.98);
 }
 
 .login-btn:disabled {
-    opacity: 0.7;
+    opacity: 0.8;
     cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner Loader */
+.btn-loader {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 .login-footer {
     text-align: center;
-    color: rgba(255,255,255,0.75);
-    font-size: 12px;
-    margin-top: 20px;
-    letter-spacing: 0.4px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 12.5px;
+    margin-top: 24px;
+    letter-spacing: 0.3px;
 }
 
 @media (max-width: 460px) {
     .login-card {
-        padding: 32px 24px;
+        padding: 32px 22px;
     }
 }
+
+
+
 
 /* ===== status label ===== */
 .status-active {

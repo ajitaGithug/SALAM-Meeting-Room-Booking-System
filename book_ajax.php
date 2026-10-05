@@ -15,6 +15,7 @@ $booking_date = $_POST['booking_date'];
 $start_time   = $_POST['start_time'];
 $end_time     = $_POST['end_time'];
 $room         = $_POST['room'];
+$booked_by    = $_POST['booked_by'] ?? '';
 
 if ($end_time <= $start_time) {
     echo json_encode(["success" => false, "message" => "End time must be after start time."]);
@@ -32,9 +33,9 @@ if ($result->num_rows > 0) {
     exit;
 }
 
-$insert_sql = "INSERT INTO bookings (staff_name, staff_id, purpose, booking_date, start_time, end_time, room) VALUES (?, ?, ?, ?, ?, ?, ?)";
+$insert_sql = "INSERT INTO bookings (staff_name, staff_id, purpose, booking_date, start_time, end_time, room, booked_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($insert_sql);
-$stmt->bind_param("sssssss", $staff_name, $staff_id, $purpose, $booking_date, $start_time, $end_time, $room);
+$stmt->bind_param("ssssssss", $staff_name, $staff_id, $purpose, $booking_date, $start_time, $end_time, $room, $booked_by);
 $stmt->execute();
 
 echo json_encode([

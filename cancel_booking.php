@@ -10,7 +10,8 @@ $id = $_GET['id'] ?? null;
 $staff_id = $_SESSION['staff_id'];
 
 if ($id === null) {
-    die("No booking specified.");
+    header("Location: my_bookings.php?msg=error");
+    exit;
 }
 
 // IMPORTANT: only delete if it belongs to the logged-in staff but admin can delete all

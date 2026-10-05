@@ -42,6 +42,7 @@ $result = $stmt->get_result();
             <table>
                 <tr>
                     <th>Purpose</th>
+                    <th>Booked By</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Room</th>
@@ -50,6 +51,7 @@ $result = $stmt->get_result();
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
                         <td><?php echo htmlspecialchars($row['purpose']); ?></td>
+                        <td><?php echo htmlspecialchars($row['booked_by'] ?? ''); ?></td>
                         <td><?php echo date('d M Y', strtotime($row['booking_date'])); ?></td>
                         <td><?php echo date('g:i A', strtotime($row['start_time'])) . " – " . date('g:i A', strtotime($row['end_time'])); ?></td>
                         <td><span class="room-tag"><?php echo htmlspecialchars($row['room']); ?></span></td>

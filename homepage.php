@@ -88,8 +88,8 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
         </tr>
         <tr>
             <?php foreach ($days as $d): ?>
-                <th class="sub">MEETING</th>
-                <th class="sub">SEMINAR</th>
+                <th class="sub sub-meeting">MEETING</th>
+                <th class="sub sub-seminar">SEMINAR</th>
             <?php endforeach; ?>
         </tr>
         <?php foreach ($slots as $i => $slot):
@@ -111,10 +111,10 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
                                 data-room="<?php echo htmlspecialchars($room_full); ?>"
                                 data-start="<?php echo $slot; ?>"
                                 data-end="<?php echo $slot_end; ?>"
-                                title="<?php echo htmlspecialchars($booking['purpose'] . ' — ' . $booking['staff_name']); ?>">
+                                title="<?php echo htmlspecialchars($booking['purpose'] . ' — ' . ($booking['booked_by'] ?? $booking['staff_name'])); ?>">
                                 <div class="booked-title"><?php echo htmlspecialchars($booking['purpose']); ?></div>
                                 <?php if ($entry['span'] >= 2): ?>
-                                    <div class="booked-staff"><?php echo htmlspecialchars($booking['staff_name']); ?></div>
+                                    <div class="booked-staff"><?php echo htmlspecialchars($booking['booked_by'] ?? $booking['staff_name']); ?></div>
                                 <?php endif; ?>
                             </td>
                         <?php endif; ?>
@@ -143,6 +143,8 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
         <p id="popup-details"></p>
         <label>Purpose:</label>
         <input type="text" id="popup-purpose" maxlength="255" required>
+        <label>Your Name:</label>
+        <input type="text" id="popup-booked-by" maxlength="100" placeholder="Who is making this booking?" required>
         <div style="margin-top:15px;">
             <button onclick="submitQuickBooking()">Confirm Booking</button>
             <button onclick="closePopup()" style="background:#888;">Cancel</button>
@@ -235,6 +237,7 @@ document.querySelectorAll('.cell.available').forEach(cell => {
         popupDetails.textContent =
             `${pending.room} on ${pending.date}, ${pending.start} - ${pending.end}`;
         popupPurpose.value = '';
+        document.getElementById('popup-booked-by').value = '';
         popup.style.display = 'flex';
         popupPurpose.focus();
     });
@@ -255,11 +258,15 @@ popupPurpose.addEventListener('keydown', e => {
 
 async function submitQuickBooking() {
     const purpose = popupPurpose.value.trim();
+    const bookedBy = document.getElementById('popup-booked-by').value.trim();
+
     if (!purpose) { alert('Please enter a purpose.'); return; }
+    if (!bookedBy) { alert('Please enter your name.'); return; }
     if (!pending) return;
 
     const formData = new FormData();
     formData.append('purpose', purpose);
+    formData.append('booked_by', bookedBy);
     formData.append('booking_date', pending.date);
     formData.append('start_time', pending.start);
     formData.append('end_time', pending.end);
@@ -302,44 +309,5 @@ async function submitQuickBooking() {
 }
 </script>
 
-<style>
-.week-grid { border-collapse: collapse; width: 100%; }
-.week-grid th, .week-grid td { border: 1px solid #ccd3d9; padding: 6px; text-align: center; font-size: 12px; }
-.week-grid th.sub { background: #eef2f6; font-size: 11px; }
-.cell.available { background: #f0f6ff; color: #1c3f60; cursor: pointer; }
-.cell.available:hover { background: #d7e6fb; }
-.cell.available.selected-start,
-.cell.available.selected-end { background: #1c3f60; color: #ffffff; }
-.cell.available.in-range { background: #a9c3dc; color: #ffffff; }
-.cell.booked {
-    background: #f5c6c6;
-    color: #7a2323;
-    vertical-align: middle;
-    text-align: center;
-    padding: 6px 4px;
-}
-
-.booked-title {
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 1.3;
-    word-break: break-word;
-}
-
-.booked-staff {
-    font-size: 10px;
-    opacity: 0.8;
-    margin-top: 2px;
-}
-
-.popup-overlay {
-    position: fixed; top:0; left:0; width:100%; height:100%;
-    background: rgba(0,0,0,0.4); display: flex;
-    align-items: center; justify-content: center; z-index: 999;
-}
-.popup-box {
-    background: #fff; padding: 25px; border-radius: 8px; width: 320px;
-}
-</style>
 </body>
 </html>

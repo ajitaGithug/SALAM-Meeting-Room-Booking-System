@@ -8,7 +8,7 @@ function nav_active($page, $current) {
     <div class="navbar-inner">
         <a href="homepage.php" class="brand">
             <img src="assets/Salam-logo.png" alt="SALAM Logo" class="logo">
-            <span class="brand-text">SALAM MEETING ROOM BOOKING SYSTEM</span>
+            <span class="brand-text">SALAM MEETING/SEMINAR ROOM BOOKING SYSTEM</span>
         </a>
 
         <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">
