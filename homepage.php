@@ -157,7 +157,6 @@ let startCell = null;
 let endCell = null;
 let pending = null; // {date, room, start, end, cells}
 
-const currentStaffName = <?php echo json_encode($_SESSION['staff_name']); ?>;
 
 const popup = document.getElementById('booking-popup');
 const popupDetails = document.getElementById('popup-details');
@@ -182,6 +181,12 @@ function startNewSelection(cell) {
     clearSelection();
     startCell = cell;
     startCell.classList.add('selected-start');
+}
+
+function roomLabel(room) {
+    if (room === 'Bilik Meeting') return 'Meeting';
+    if (room === 'Bilik Seminar') return 'Seminar';
+    return room;
 }
 
 document.querySelectorAll('.cell.available').forEach(cell => {
@@ -235,7 +240,7 @@ document.querySelectorAll('.cell.available').forEach(cell => {
         };
 
         popupDetails.textContent =
-            `${pending.room} on ${pending.date}, ${pending.start} - ${pending.end}`;
+            `${roomLabel(pending.room)} on ${pending.date}, ${pending.start} - ${pending.end}`;
         popupPurpose.value = '';
         document.getElementById('popup-booked-by').value = '';
         popup.style.display = 'flex';
@@ -286,8 +291,8 @@ async function submitQuickBooking() {
         pending.cells.forEach((c, idx) => {
             c.classList.remove('available', 'selected-start', 'selected-end', 'in-range');
             c.classList.add('booked');
-            c.title = purpose + ' — ' + currentStaffName;
-            if (idx > 0) c.remove(); // the merged first cell replaces the rest
+            c.title = purpose + ' — ' + bookedBy;
+            if (idx > 0) c.remove();
         });
 
         first.rowSpan = pending.cells.length;
@@ -301,10 +306,11 @@ async function submitQuickBooking() {
         if (pending.cells.length >= 2) {
             const staff = document.createElement('div');
             staff.className = 'booked-staff';
-            staff.textContent = currentStaffName;
+            staff.textContent = bookedBy;
             first.appendChild(staff);
         }
     }
+
     closePopup();
 }
 </script>

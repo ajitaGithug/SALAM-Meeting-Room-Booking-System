@@ -163,8 +163,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <label>Room</label>
                 <select name="room" required>
-                    <option value="Bilik Meeting" <?php if ($booking['room'] === 'Bilik Meeting') echo 'selected'; ?>>Bilik Meeting</option>
-                    <option value="Bilik Seminar" <?php if ($booking['room'] === 'Bilik Seminar') echo 'selected'; ?>>Bilik Seminar</option>
+                    <option value="Bilik Meeting" <?php if ($booking['room'] === 'Bilik Meeting') echo 'selected'; ?>>Meeting</option>
+                    <option value="Bilik Seminar" <?php if ($booking['room'] === 'Bilik Seminar') echo 'selected'; ?>>Seminar</option>
                 </select>
 
                 <div class="form-actions">

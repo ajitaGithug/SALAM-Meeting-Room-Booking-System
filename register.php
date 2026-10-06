@@ -10,7 +10,7 @@ require "config.php";
 $register_message = "";
 $reset_message = "";
 
-// Handle new staff registration
+// Handle new Account registration
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] === 'register') {
     $staff_name = $_POST['staff_name'];
     $staff_id   = $_POST['staff_id'];
@@ -82,19 +82,19 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manage Staff - SALAM</title>
+    <title>Manage Account - SALAM</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php include 'header.php'; ?>
 
         <div class="container">
-        <h2>Manage Staff</h2>
+        <h2>Manage Account</h2>
 
         <div class="dashboard">
 
             <div class="card">
-                <h3>Add New Staff</h3>
+                <h3>Add New Account</h3>
                 <?php if ($register_message): ?>
                     <div class="success"><?php echo htmlspecialchars($register_message); ?></div>
                 <?php endif; ?>
@@ -104,7 +104,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
                     <label>Name:</label>
                     <input type="text" name="staff_name" required>
 
-                    <label>Staff ID:</label>
+                    <label>Account ID:</label>
                     <input type="text" name="staff_id" required>
 
                     <label>Password:</label>
@@ -115,14 +115,14 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
             </div>
 
             <div class="card">
-                <h3>Reset Staff Password</h3>
+                <h3>Reset Account Password</h3>
                 <?php if ($reset_message): ?>
                     <div class="success"><?php echo htmlspecialchars($reset_message); ?></div>
                 <?php endif; ?>
                 <form method="POST">
                     <input type="hidden" name="action" value="reset">
 
-                    <label>Select Staff:</label>
+                    <label>Select Account:</label>
                     <select name="staff_id" required>
                         <?php
                         $users_result->data_seek(0);
@@ -142,13 +142,13 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
             </div>
 
             <div class="card">
-                <h3>Manage Staff Status</h3>
+                <h3>Manage Account Status</h3>
                 <?php if ($toggle_message): ?>
                     <div class="success"><?php echo htmlspecialchars($toggle_message); ?></div>
                 <?php endif; ?>
 
                 <table>
-                    <tr><th>Staff</th><th>Status</th><th>Action</th></tr>
+                    <tr><th>Account</th><th>Status</th><th>Action</th></tr>
                     <?php
                     $users_result->data_seek(0);
                     while ($u = $users_result->fetch_assoc()):

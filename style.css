@@ -1115,3 +1115,22 @@ button:active {
 .cancel-link:hover {
     color: #c0392b;
 }
+
+/* === table scroll === */
+.table-scroll-wrapper {
+    max-height: 480px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border: 1px solid #e0e4e8;
+    border-radius: 8px;
+}
+
+.table-scroll-wrapper table {
+    margin-top: 0;
+}
+
+.table-scroll-wrapper thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}

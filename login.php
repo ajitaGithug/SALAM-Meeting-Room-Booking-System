@@ -71,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <div class="logo-container">
                     <img src="assets/Salam-logo.png" alt="SALAM Logo" class="login-logo" onerror="this.style.display='none'">
                 </div>
-                <h2>Welcome Back</h2>
+                <h2>Welcome</h2>
                 <p class="login-subtitle">Sign in to manage your meeting room bookings</p>
             </div>
 
@@ -167,6 +167,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 </div>
 
                 <!-- Remember Staff ID Checkbox -->
+                <!--
                 <div class="form-utilities">
                     <label class="checkbox-container">
                         <input type="checkbox" id="remember-me">
@@ -174,6 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <span class="checkbox-text">Remember my Staff ID</span>
                     </label>
                 </div>
+                -->
 
                 <!-- Submit Button -->
                 <button type="submit" id="login-btn" class="login-btn">
@@ -183,7 +185,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </form>
         </div>
 
-        <p class="login-footer">SALAM Meeting/Seminar Room Booking System &bull; Secure Portal</p>
+        <p class="login-footer">SALAM Meeting/Seminar Room Booking System &bull;</p>
     </div>
 
     <!-- Intuitive Interactions Script -->

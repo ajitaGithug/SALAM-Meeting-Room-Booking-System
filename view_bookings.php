@@ -74,8 +74,8 @@ $result = $stmt->get_result();
                 <label>Room</label>
                 <select name="filter_room">
                     <option value="">All Rooms</option>
-                    <option value="Bilik Meeting" <?php if ($filter_room === 'Bilik Meeting') echo 'selected'; ?>>Bilik Meeting</option>
-                    <option value="Bilik Seminar" <?php if ($filter_room === 'Bilik Seminar') echo 'selected'; ?>>Bilik Seminar</option>
+                    <option value="Bilik Meeting" <?php if ($filter_room === 'Bilik Meeting') echo 'selected'; ?>>Meeting</option>
+                    <option value="Bilik Seminar" <?php if ($filter_room === 'Bilik Seminar') echo 'selected'; ?>>Seminar</option>
                 </select>
             </div>
 
@@ -90,33 +90,33 @@ $result = $stmt->get_result();
         </p>
 
         <?php if ($result->num_rows > 0): ?>
-            <div style="overflow-x:auto;">
+            <div class="table-scroll-wrapper">
             <table>
-                <tr>
-                    <th>Staff Name</th>
-                    <th>Staff ID</th>
-                    <th>Purpose</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Room</th>
-                    <?php if ($is_admin): ?><th>Actions</th><?php endif; ?>
-                </tr>
-                <?php while ($row = $result->fetch_assoc()): ?>
+                <thead>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['staff_name']); ?></td>
-                        <td><?php echo htmlspecialchars($row['staff_id']); ?></td>
-                        <td><?php echo htmlspecialchars($row['purpose']); ?></td>
-                        <td><?php echo date('d M Y', strtotime($row['booking_date'])); ?></td>
-                        <td><?php echo date('g:i A', strtotime($row['start_time'])) . " – " . date('g:i A', strtotime($row['end_time'])); ?></td>
-                        <td><span class="room-tag"><?php echo htmlspecialchars($row['room']); ?></span></td>
-                        <?php if ($is_admin): ?>
-                            <td class="actions">
-                                <a href="edit_booking.php?id=<?php echo $row['id']; ?>&from=view" class="action-btn edit-btn">Edit</a>
-                                <a href="cancel_booking.php?id=<?php echo $row['id']; ?>&from=view" class="action-btn cancel-btn" onclick="return confirm('Cancel this booking?');">Cancel</a>
-                            </td>
-                        <?php endif; ?>
+                        <th>Purpose</th>
+                        <th>Booked By</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Room</th>
+                        <th>Actions</th>
                     </tr>
-                <?php endwhile; ?>
+                </thead>
+                <tbody>
+                    <?php while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($row['purpose']); ?></td>
+                            <td><?php echo htmlspecialchars($row['booked_by'] ?? ''); ?></td>
+                            <td><?php echo date('d M Y', strtotime($row['booking_date'])); ?></td>
+                            <td><?php echo date('g:i A', strtotime($row['start_time'])) . " – " . date('g:i A', strtotime($row['end_time'])); ?></td>
+                            <td><span class="room-tag"><?php echo htmlspecialchars(room_label($row['room'])); ?></span></td>
+                            <td class="actions">
+                                <a href="edit_booking.php?id=<?php echo $row['id']; ?>&from=my" class="action-btn edit-btn">Edit</a>
+                                <a href="cancel_booking.php?id=<?php echo $row['id']; ?>&from=my" class="action-btn cancel-btn" onclick="return confirm('Cancel this booking?');">Cancel</a>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
             </table>
             </div>
         <?php else: ?>
