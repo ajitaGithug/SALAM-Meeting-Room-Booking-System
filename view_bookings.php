@@ -99,7 +99,7 @@ $result = $stmt->get_result();
                         <th>Date</th>
                         <th>Time</th>
                         <th>Room</th>
-                        <th>Actions</th>
+                        <?php if ($is_admin): ?><th>Actions</th><?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -110,10 +110,12 @@ $result = $stmt->get_result();
                             <td><?php echo date('d M Y', strtotime($row['booking_date'])); ?></td>
                             <td><?php echo date('g:i A', strtotime($row['start_time'])) . " – " . date('g:i A', strtotime($row['end_time'])); ?></td>
                             <td><span class="room-tag"><?php echo htmlspecialchars(room_label($row['room'])); ?></span></td>
-                            <td class="actions">
-                                <a href="edit_booking.php?id=<?php echo $row['id']; ?>&from=my" class="action-btn edit-btn">Edit</a>
-                                <a href="cancel_booking.php?id=<?php echo $row['id']; ?>&from=my" class="action-btn cancel-btn" onclick="return confirm('Cancel this booking?');">Cancel</a>
-                            </td>
+                            <?php if ($is_admin): ?>
+                                <td class="actions">
+                                    <a href="edit_booking.php?id=<?php echo $row['id']; ?>&from=view" class="action-btn edit-btn">Edit</a>
+                                    <a href="cancel_booking.php?id=<?php echo $row['id']; ?>&from=view" class="action-btn cancel-btn" onclick="return confirm('Cancel this booking?');">Cancel</a>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
