@@ -44,6 +44,7 @@ $result = $stmt->get_result();
 <head>
     <title>View Bookings - SALAM</title>
     <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <?php include 'header.php'; ?>

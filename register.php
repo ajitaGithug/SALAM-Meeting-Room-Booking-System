@@ -84,6 +84,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
 <head>
     <title>Manage Account - SALAM</title>
     <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <?php include 'header.php'; ?>

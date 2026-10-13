@@ -60,6 +60,7 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
 <head>
     <title>Week View - SALAM</title>
     <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
 <?php include 'header.php'; ?>
@@ -73,68 +74,76 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
         <a href="homepage.php?week_start=<?php echo $next_week; ?>" class="week-btn">Next Week &raquo;</a>
     </div>
 
-    <p style="font-size:13px; color:#667788; margin-bottom:10px;">
+    <p class="grid-hint">
         Click a start time, then click an end time in the same column to book a meeting.
         Click the same slot twice for a 30-minute meeting.
     </p>
 
-    <div style="overflow-x:auto;">
-    <table class="week-grid">
-        <tr>
-            <th rowspan="2">Time</th>
-            <?php foreach ($days as $d): ?>
-                <th colspan="2"><?php echo date('D d/m', strtotime($d)); ?></th>
-            <?php endforeach; ?>
-        </tr>
-        <tr>
-            <?php foreach ($days as $d): ?>
-                <th class="sub sub-meeting">MEETING</th>
-                <th class="sub sub-seminar">SEMINAR</th>
-            <?php endforeach; ?>
-        </tr>
-        <?php foreach ($slots as $i => $slot):
-            $slot_end = $slots[$i+1] ?? "17:00";
-        ?>
-        <tr>
-            <td><?php echo date('g:i A', strtotime($slot)); ?></td>
-            <?php foreach ($days as $d): ?>
+<!-- Mobile day tabs -->
+    <div class="day-tabs">
+        <?php foreach ($days as $di => $d): ?>
+            <button type="button" class="day-tab" data-day="<?php echo $di; ?>">
+                <?php echo date('D d', strtotime($d)); ?>
+            </button>
+        <?php endforeach; ?>
+    </div>
 
-                <?php foreach ($rooms as $room_full => $room_abbr):
-                    $key = $d . '_' . $room_full . '_' . $slot;
-                    $entry = $bookings_map[$key] ?? null;
-                ?>
-                    <?php if ($entry): $booking = $entry['row']; ?>
-                        <?php if ($entry['first']): ?>
-                            <td class="cell booked"
-                                rowspan="<?php echo $entry['span']; ?>"
+    <div style="overflow-x:auto;">
+        <table class="week-grid">
+            <tr>
+                <th rowspan="2">Time</th>
+                <?php foreach ($days as $di => $d): ?>
+                    <th colspan="2" class="day-col day-<?php echo $di; ?>"><?php echo date('D d/m', strtotime($d)); ?></th>
+                <?php endforeach; ?>
+            </tr>
+            <tr>
+                <?php foreach ($days as $di => $d): ?>
+                    <th class="sub sub-meeting day-col day-<?php echo $di; ?>">MEETING</th>
+                    <th class="sub sub-seminar day-col day-<?php echo $di; ?>">SEMINAR</th>
+                <?php endforeach; ?>
+            </tr>
+            <?php foreach ($slots as $i => $slot):
+                $slot_end = $slots[$i+1] ?? "17:00";
+            ?>
+            <tr>
+                <td><?php echo date('g:i A', strtotime($slot)); ?></td>
+                <?php foreach ($days as $di => $d): ?>
+
+                    <?php foreach ($rooms as $room_full => $room_abbr):
+                        $key = $d . '_' . $room_full . '_' . $slot;
+                        $entry = $bookings_map[$key] ?? null;
+                    ?>
+                        <?php if ($entry): $booking = $entry['row']; ?>
+                            <?php if ($entry['first']): ?>
+                                <td class="cell booked day-col day-<?php echo $di; ?>"
+                                    rowspan="<?php echo $entry['span']; ?>"
+                                    data-date="<?php echo $d; ?>"
+                                    data-room="<?php echo htmlspecialchars($room_full); ?>"
+                                    data-start="<?php echo $slot; ?>"
+                                    data-end="<?php echo $slot_end; ?>"
+                                    title="<?php echo htmlspecialchars($booking['purpose'] . ' — ' . ($booking['booked_by'] ?? $booking['staff_name'])); ?>">
+                                    <div class="booked-title"><?php echo htmlspecialchars($booking['purpose']); ?></div>
+                                    <?php if ($entry['span'] >= 2): ?>
+                                        <div class="booked-staff"><?php echo htmlspecialchars($booking['booked_by'] ?? $booking['staff_name']); ?></div>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <td class="cell available day-col day-<?php echo $di; ?>"
                                 data-date="<?php echo $d; ?>"
                                 data-room="<?php echo htmlspecialchars($room_full); ?>"
                                 data-start="<?php echo $slot; ?>"
-                                data-end="<?php echo $slot_end; ?>"
-                                title="<?php echo htmlspecialchars($booking['purpose'] . ' — ' . ($booking['booked_by'] ?? $booking['staff_name'])); ?>">
-                                <div class="booked-title"><?php echo htmlspecialchars($booking['purpose']); ?></div>
-                                <?php if ($entry['span'] >= 2): ?>
-                                    <div class="booked-staff"><?php echo htmlspecialchars($booking['booked_by'] ?? $booking['staff_name']); ?></div>
-                                <?php endif; ?>
+                                data-end="<?php echo $slot_end; ?>">
+                                +
                             </td>
                         <?php endif; ?>
-                    <?php else: ?>
-                        <td class="cell available"
-                            data-date="<?php echo $d; ?>"
-                            data-room="<?php echo htmlspecialchars($room_full); ?>"
-                            data-start="<?php echo $slot; ?>"
-                            data-end="<?php echo $slot_end; ?>">
-                            +
-                        </td>
-                    <?php endif; ?>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
 
+                <?php endforeach; ?>
+            </tr>
             <?php endforeach; ?>
-        </tr>
-        <?php endforeach; ?>
-    </table>
+        </table>
     </div>
-</div>
 
 <!-- Booking popup -->
 <div id="booking-popup" class="popup-overlay" style="display:none;">
@@ -161,6 +170,12 @@ let pending = null; // {date, room, start, end, cells}
 const popup = document.getElementById('booking-popup');
 const popupDetails = document.getElementById('popup-details');
 const popupPurpose = document.getElementById('popup-purpose');
+const weekGrid = document.querySelector('.week-grid');
+const dayTabs = document.querySelectorAll('.day-tab');
+const todayIndex = <?php
+    $ti = array_search(date('Y-m-d'), $days);
+    echo $ti === false ? 0 : $ti;
+?>;
 
 // All cells in the same day + room column, in time order
 function columnCells(cell) {
@@ -313,6 +328,15 @@ async function submitQuickBooking() {
 
     closePopup();
 }
+
+function showDay(i) {
+    weekGrid.dataset.day = i;
+    dayTabs.forEach(t => t.classList.toggle('active', t.dataset.day == i));
+    clearSelection();
+}
+
+dayTabs.forEach(t => t.addEventListener('click', () => showDay(t.dataset.day)));
+showDay(todayIndex);
 </script>
 
 </body>

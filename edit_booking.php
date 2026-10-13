@@ -100,6 +100,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <link rel="stylesheet" href="style.css">
     <title>Edit Booking - SALAM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
     <?php include 'header.php'; ?>
