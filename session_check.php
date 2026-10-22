@@ -1,9 +1,9 @@
 <?php
 // Session timeout duration (in seconds) - e.g. 15 minutes
-$timeout_duration = 10 * 60; 
+$timeout_duration = 15 * 60; 
 
 if (isset($_SESSION['last_activity'])) {  //check if we've recorded a previous activity time
-    $elapsed = time() - $_SESSION['last_activity'];  //calcualte how many seconds have past since last page load
+    $elapsed = time() - $_SESSION['last_activity'];  //calculate how many seconds have passed since last page load
     if ($elapsed > $timeout_duration) {
         session_unset();
         session_destroy();

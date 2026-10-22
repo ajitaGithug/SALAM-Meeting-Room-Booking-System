@@ -32,7 +32,8 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-    die("Booking not found or you don't have permission to edit it.");
+      header("Location: " . ($from === 'view' ? 'view_bookings.php' : 'my_bookings.php') . "?msg=error");
+  exit;
 }
 $booking = $result->fetch_assoc();
 
@@ -117,14 +118,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="card">
             <form method="POST" id="edit-form">
-                <input type="hidden" name="id" value="<?php echo $booking['id']; ?>">
+                <input type="hidden" name="id" value="<?php echo (int)$booking['id']; ?>">
                 <input type="hidden" name="from" value="<?php echo htmlspecialchars($from); ?>">
 
                 <label>Purpose</label>
                 <input type="text" name="purpose" value="<?php echo htmlspecialchars($booking['purpose']); ?>" required>
 
                 <label>Date</label>
-                <input type="date" name="booking_date" value="<?php echo $booking['booking_date']; ?>" required>
+                <input type="date" name="booking_date" value="<?php echo htmlspecialchars($booking['booking_date']); ?>" required>
 
                 <div class="time-row">
                     <div>

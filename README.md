@@ -77,12 +77,11 @@ See **Setup Instructions** below.
 - `register.php` — admin-only: add staff, reset password, activate/deactivate staff (all three combined on one "Manage Staff" page)
 - `homepage.php` — weekly grid view and main booking interface (click-to-select time range, AJAX submission)
 - `book_ajax.php` — AJAX endpoint that validates and inserts a booking (conflict check happens here)
-- `get_booked_slots.php` — AJAX endpoint returning existing bookings for a room/date range, used to grey out unavailable slots
 - `view_bookings.php` — all bookings, filterable by date/room; shows Edit/Cancel actions inline for admins
 - `my_bookings.php` — logged-in staff's own bookings, with edit/cancel
 - `edit_booking.php` / `cancel_booking.php` — shared logic for both staff and admin, role-aware (admin can act on any booking, redirects differ by role)
 
-**Removed:** `admin_bookings.php` was merged into `view_bookings.php`. `admin_reset_password.php` was merged into `register.php`. The old dropdown-based `booking.php` was merged into the homepage grid.
+**Removed:** `admin_bookings.php` was merged into `view_bookings.php`. `admin_reset_password.php` was merged into `register.php`. The old dropdown-based `booking.php` was merged into the homepage grid. Get_booked_slots.php was removed because the weekly grid loads the whole week in one query.
 
 ## Status
 

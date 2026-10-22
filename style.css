@@ -273,6 +273,11 @@ tr:hover {
     display: flex;
     align-items: center;
     gap: 10px;
+    color: #991b1b;
+    background: #fdecea;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
 }
 
 .error-icon {

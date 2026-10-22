@@ -228,26 +228,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         this.setSelectionRange(start, end);
     });
 
-    // 4. Remember Staff ID (via localStorage)
-    const rememberCheckbox = document.getElementById('remember-me');
-    const savedStaffId = localStorage.getItem('salam_saved_staff_id');
-    if (savedStaffId && !staffIdInput.value) {
-        staffIdInput.value = savedStaffId;
-        rememberCheckbox.checked = true;
-    }
-
-    // 5. Submit Loading State & Animation
+    // 4. Submit Loading State & Animation
+    localStorage.removeItem('salam_saved_staff_id'); // clear any old saved ID
     document.getElementById('login-form').addEventListener('submit', function() {
         const btn = document.getElementById('login-btn');
         const btnText = document.getElementById('btn-text');
         const loader = document.getElementById('btn-loader');
-
-        // Save or remove Staff ID in localStorage
-        if (rememberCheckbox.checked) {
-            localStorage.setItem('salam_saved_staff_id', staffIdInput.value.trim());
-        } else {
-            localStorage.removeItem('salam_saved_staff_id');
-        }
 
         btn.disabled = true;
         btn.classList.add('is-loading');

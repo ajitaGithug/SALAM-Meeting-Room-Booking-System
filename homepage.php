@@ -151,7 +151,7 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
         <h3>Book This Slot</h3>
         <p id="popup-details"></p>
         <label>Purpose:</label>
-        <input type="text" id="popup-purpose" maxlength="255" required>
+        <input type="text" id="popup-purpose" maxlength="200" required>
         <label>Your Name:</label>
         <input type="text" id="popup-booked-by" maxlength="100" placeholder="Who is making this booking?" required>
         <div style="margin-top:15px;">

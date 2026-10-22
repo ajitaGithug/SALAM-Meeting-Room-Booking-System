@@ -4,6 +4,7 @@ if (!isset($_SESSION['staff_id'])) {
     header("Location: login.php");
     exit;
 }
+require "session_check.php";
 require "config.php";
 
 $id = $_GET['id'] ?? null;

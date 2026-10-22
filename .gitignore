@@ -1,1 +1,10 @@
+# local DB credentials: copy config.example.php to config.php
 config.php
+*.log
+error_log
+.env
+*.bak
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
