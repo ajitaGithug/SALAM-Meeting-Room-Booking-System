@@ -7,7 +7,7 @@ if (!isset($_SESSION['staff_id'])) {
     exit;
 }
 require "session_check.php"; // session timer
-require "config.php"; // establish connection with database
+require_once "config.php"; // establish connection with database
 
 // Read filter values from the URL (if any were submitted)
 $filter_date = $_GET['filter_date'] ?? '';

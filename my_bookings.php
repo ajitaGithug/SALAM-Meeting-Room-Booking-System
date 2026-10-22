@@ -5,7 +5,7 @@ if (!isset($_SESSION['staff_id'])) {
     exit;
 }
 require "session_check.php"; // session timer
-require "config.php"; // establish connection with database
+require_once "config.php"; // establish connection with database
 
 $staff_id = $_SESSION['staff_id'];
 

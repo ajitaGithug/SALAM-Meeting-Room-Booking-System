@@ -2,7 +2,7 @@
 session_start();
 if (!isset($_SESSION['staff_id'])) { header("Location: login.php"); exit; }
 require "session_check.php";
-require "config.php";
+require_once "config.php";
 
 $week_start = $_GET['week_start'] ?? date('Y-m-d', strtotime('monday this week'));
 $days = [];
@@ -292,8 +292,19 @@ async function submitQuickBooking() {
     formData.append('end_time', pending.end);
     formData.append('room', pending.room);
 
-    const response = await fetch('book_ajax.php', { method: 'POST', body: formData });
-    const data = await response.json();
+        let data;
+    try {
+        const response = await fetch('book_ajax.php', { method: 'POST', body: formData });
+        data = await response.json();
+    } catch (e) {
+        alert('Could not reach the server. Please check My Bookings before trying again.');
+        closePopup();
+        return;
+    }
+    if (data.error) {
+        window.location.href = data.error === 'session_expired' ? 'login.php?timeout=1' : 'login.php';
+        return;
+    }
 
     const msg = document.getElementById('week-message');
     msg.textContent = data.message;

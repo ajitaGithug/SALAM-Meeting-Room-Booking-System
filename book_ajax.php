@@ -3,10 +3,12 @@ session_start();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['staff_id'])) {
-    echo json_encode(["success" => false, "message" => "Not logged in."]);
+    echo json_encode(["success" => false, "error" => "not_logged_in", "message" => "Not logged in."]);
     exit;
 }
-require "config.php";
+define('SALAM_JSON', true);   // tells session_check.php to answer in JSON, not redirect
+require "session_check.php";
+require_once "config.php";
 
 $staff_name   = $_SESSION['staff_name'];
 $staff_id     = $_SESSION['staff_id'];

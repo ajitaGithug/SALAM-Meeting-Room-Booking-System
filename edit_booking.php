@@ -5,7 +5,7 @@ if (!isset($_SESSION['staff_id'])) {
     exit;
 }
 require "session_check.php";
-require "config.php";
+require_once "config.php";
 
 $staff_id = $_SESSION['staff_id'];
 $id = $_GET['id'] ?? $_POST['id'] ?? null;

@@ -5,7 +5,11 @@ if (!isset($_SESSION['staff_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     exit;
 }
 require "session_check.php";
-require "config.php";
+if (($_SESSION['role'] ?? '') !== 'admin') {   // role is now refreshed from the database
+    header("Location: homepage.php");
+    exit;
+}
+require_once "config.php";
 
 $register_message = "";
 $reset_message = "";
