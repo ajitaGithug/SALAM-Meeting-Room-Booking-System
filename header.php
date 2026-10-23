@@ -26,7 +26,10 @@ function nav_active($page, $current) {
             <div class="nav-user">
                 <div class="avatar"><?php echo strtoupper(substr($_SESSION['staff_name'], 0, 1)); ?></div>
                 <span class="nav-username"><?php echo htmlspecialchars($_SESSION['staff_name']); ?></span>
-                <a href="logout.php" class="logout-link">Logout</a>
+                <form method="POST" action="logout.php" class="logout-form">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="logout-link">Logout</button>
+                </form>
             </div>
         </div>
     </div>

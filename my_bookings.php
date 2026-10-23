@@ -62,7 +62,13 @@ $result = $stmt->get_result();
                             <td><span class="room-tag"><?php echo htmlspecialchars(room_label($row['room'])); ?></span></td>
                             <td class="actions">
                                 <a href="edit_booking.php?id=<?php echo $row['id']; ?>&from=my" class="action-btn edit-btn">Edit</a>
-                                <a href="cancel_booking.php?id=<?php echo $row['id']; ?>&from=my" class="action-btn cancel-btn" onclick="return confirm('Cancel this booking?');">Cancel</a>
+                                <form method="POST" action="cancel_booking.php" class="inline-form"
+                                    onsubmit="return confirm(<?php echo htmlspecialchars(json_encode('Cancel "' . $row['purpose'] . '" on ' . date('d M Y', strtotime($row['booking_date'])) . '?'), ENT_QUOTES); ?>);">
+                                    <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="id" value="<?php echo (int)$row['id']; ?>">
+                                    <input type="hidden" name="from" value="my">
+                                    <button type="submit" class="action-btn cancel-btn">Cancel</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endwhile; ?>

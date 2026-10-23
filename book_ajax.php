@@ -10,6 +10,10 @@ define('SALAM_JSON', true);   // tells session_check.php to answer in JSON, not 
 require "session_check.php";
 require_once "config.php";
 
+if (!csrf_valid()) {
+    csrf_fail();
+}
+
 $staff_name   = $_SESSION['staff_name'];
 $staff_id     = $_SESSION['staff_id'];
 $purpose      = $_POST['purpose'];

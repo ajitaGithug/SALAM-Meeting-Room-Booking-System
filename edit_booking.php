@@ -39,6 +39,7 @@ $booking = $result->fetch_assoc();
 
 // Handle the update when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!csrf_valid()) { csrf_fail(); }
     $purpose      = $_POST['purpose'];
     $booking_date = $_POST['booking_date'];
     $start_time   = $_POST['start_time'];
@@ -118,6 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="card">
             <form method="POST" id="edit-form">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="id" value="<?php echo (int)$booking['id']; ?>">
                 <input type="hidden" name="from" value="<?php echo htmlspecialchars($from); ?>">
 

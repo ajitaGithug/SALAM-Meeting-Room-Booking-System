@@ -48,3 +48,34 @@ if (!$sc_user || $sc_user['status'] !== 'active') {
 // 3. Use the role stored in the database, not the one saved at login
 $_SESSION['role'] = $sc_user['role'];
 $_SESSION['last_activity'] = time();
+
+
+// ---- CSRF protection ----
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+function csrf_field() {
+    return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($_SESSION['csrf_token']) . '">';
+}
+
+function csrf_valid() {
+    $sent = $_POST['csrf_token'] ?? '';
+    return is_string($sent) && isset($_SESSION['csrf_token'])
+        && hash_equals($_SESSION['csrf_token'], $sent);
+}
+
+function csrf_fail() {
+    http_response_code(403);
+    if (defined('SALAM_JSON')) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            "success" => false,
+            "error"   => "csrf",
+            "message" => "Security check failed. Please reload the page and try again."
+        ]);
+    } else {
+        echo "Security check failed. Please go back, reload the page and try again.";
+    }
+    exit;
+}

@@ -4,7 +4,13 @@ if (!isset($_SESSION['staff_id']) || ($_SESSION['role'] ?? '') !== 'admin') {
     header("Location: login.php");
     exit;
 }
+
 require "session_check.php";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !csrf_valid()) { 
+    csrf_fail(); 
+}
+
 if (($_SESSION['role'] ?? '') !== 'admin') {   // role is now refreshed from the database
     header("Location: homepage.php");
     exit;
@@ -117,6 +123,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
                 <?php endif; ?>
                 <form method="POST">
                     <input type="hidden" name="action" value="register">
+                    <?php echo csrf_field(); ?>
 
                     <label>Name:</label>
                     <input type="text" name="staff_name" required>
@@ -138,6 +145,8 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
                 <?php endif; ?>
                 <form method="POST">
                     <input type="hidden" name="action" value="reset">
+
+                    <?php echo csrf_field(); ?>
 
                     <label>Select Account:</label>
                     <select name="staff_id" required>
@@ -177,6 +186,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
                             <td>
                                 <form method="POST" style="margin:0;" onsubmit="return confirm('<?php echo $is_active ? 'Deactivate' : 'Reactivate'; ?> this staff account?');">
                                     <input type="hidden" name="action" value="toggle_status">
+                                    <?php echo csrf_field(); ?>
                                     <input type="hidden" name="staff_id" value="<?php echo htmlspecialchars($u['staff_id']); ?>">
                                     <input type="hidden" name="new_status" value="<?php echo $is_active ? 'inactive' : 'active'; ?>">
                                     <button type="submit" class="action-btn <?php echo $is_active ? 'cancel-btn' : 'edit-btn'; ?>">

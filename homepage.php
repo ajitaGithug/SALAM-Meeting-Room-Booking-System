@@ -61,6 +61,7 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
     <title>Week View - SALAM</title>
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 </head>
 <body>
 <?php include 'header.php'; ?>
@@ -291,6 +292,7 @@ async function submitQuickBooking() {
     formData.append('start_time', pending.start);
     formData.append('end_time', pending.end);
     formData.append('room', pending.room);
+    formData.append('csrf_token', document.querySelector('meta[name="csrf-token"]').content);
 
         let data;
     try {
@@ -301,10 +303,15 @@ async function submitQuickBooking() {
         closePopup();
         return;
     }
-    if (data.error) {
-        window.location.href = data.error === 'session_expired' ? 'login.php?timeout=1' : 'login.php';
-        return;
-    }
+       if (data.error === 'csrf') {
+       alert(data.message);
+       location.reload();
+       return;
+   }
+   if (data.error) {
+       window.location.href = data.error === 'session_expired' ? 'login.php?timeout=1' : 'login.php';
+       return;
+   }
 
     const msg = document.getElementById('week-message');
     msg.textContent = data.message;
