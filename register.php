@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST['action'] ?? '') === 'reset'
         $reset_message = "Password must be at least 8 characters.";
     } else {
         $hashed = password_hash($new_password, PASSWORD_DEFAULT);
-        $sql = "UPDATE users SET password = ? WHERE staff_id = ?";
+        $sql = "UPDATE users SET password = ?, failed_logins = 0, locked_until = NULL WHERE staff_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $hashed, $target_staff_id);
 
@@ -204,4 +204,4 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
 
     <?php $conn->close(); ?>
 </body>
-</html>
+</html>
