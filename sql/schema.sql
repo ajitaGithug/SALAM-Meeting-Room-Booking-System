@@ -1,3 +1,6 @@
+-- WARNING: this file starts with DROP TABLE. Importing it into a database that
+-- already has data deletes every booking and account. Use it only for a fresh setup.
+--
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -55,7 +58,9 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `role` enum('staff','admin') NOT NULL DEFAULT 'staff',
-  `status` enum('active','inactive') NOT NULL DEFAULT 'active'
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `failed_logins` int(11) NOT NULL DEFAULT 0,
+  `locked_until` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

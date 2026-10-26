@@ -8,10 +8,11 @@ See **Setup Instructions** below.
 ## Features
 
 **Core features**
-- Staff login/logout with hashed passwords
+- Staff login/logout with hashed passwords; an account locks for 15 minutes after 5 wrong passwords in a row
 - Session timeout after inactivity, with a message shown on re-login
 - Interactive weekly grid homepage — click a start slot, then an end slot, to book a room directly on the grid (no separate booking page)
 - Auto conflict detection — no double-booking a room, checked both visually (greyed-out slots) and on the server
+- Server-side booking rules — Monday to Friday, 8:30 AM to 5:00 PM in 30-minute steps; staff cannot book, edit or cancel past bookings (admins can)
 - Multi-slot bookings display as one merged cell spanning the full duration
 - View all bookings, filterable by date/room
 - Edit/cancel your own bookings (My Bookings page)
@@ -45,6 +46,8 @@ See **Setup Instructions** below.
 | password   | VARCHAR(255)             | Hashed with password_hash()   |
 | role       | ENUM('staff','admin')    | Default 'staff'               |
 | status     | ENUM('active','inactive')| Default 'active'              |
+| failed_logins | INT                   | Wrong passwords in a row, default 0 |
+| locked_until  | DATETIME, nullable    | Login blocked until this time |
 | created_at | TIMESTAMP                |                                |
 
 ### bookings
@@ -52,29 +55,32 @@ See **Setup Instructions** below.
 |--------------|------------------------------------|-------------------------------------|
 | id           | INT, PK, auto-increment           |                                      |
 | staff_name   | VARCHAR(100)                       |                                      |
-| staff_id     | VARCHAR(20), FK → users.staff_id  |                                      |
-| purpose      | VARCHAR(255)                       |                                      |
+| staff_id     | VARCHAR(50), FK → users.staff_id  |                                      |
+| purpose      | VARCHAR(200)                       |                                      |
 | booking_date | DATE                                |                                      |
 | start_time   | TIME                                |                                      |
 | end_time     | TIME                                |                                      |
 | room         | ENUM('Bilik Meeting','Bilik Seminar') |                                   |
 | created_at   | TIMESTAMP                          |                                      |
+| booked_by    | VARCHAR(100), nullable             | Name typed by the person booking     |
 
 ## Setup Instructions
 1. Install XAMPP, start Apache + MySQL
 2. Create database `salam_meeting_room_booking` (utf8mb4_general_ci)
 3. Run the SQL scripts to create `users` and `bookings` tables, including the `status` column and the foreign key constraint (see `/sql/schema.sql`)
 4. Place project files in `htdocs/SALAM-Meeting-Room-Booking-System/`
-5. Update `config.php` with your database credentials if different from default
-6. Manually insert the first admin account directly into the `users` table (with a `password_hash()`-generated password and `role = 'admin'`), since registration is admin-only and there's no public sign-up page. All other accounts are then created via Manage Staff.
+5. Copy `config.example.php` to `config.php` and fill in the database credentials. Use a dedicated MySQL user with only SELECT, INSERT, UPDATE and DELETE on this database, not `root`
+6. Manually insert the first admin account directly into the `users` table (with a `password_hash()`-generated password and `role = 'admin'`), since registration is admin-only and there's no public sign-up page. All other accounts are then created via Manage Account.
 
 ## File Structure
-- `config.php` — database connection
+- `config.php` — database connection (not in git; copy from `config.example.php`)
+- `helpers.php` — shared booking rules: validation, conflict check and booking lock
+- `.htaccess` — blocks web access to `.git`, `sql/` and docs, turns off folder listings, adds security headers
 - `session_check.php` — session timeout logic
 - `header.php` — shared navigation bar (active-link highlighting, mobile collapse)
 - `style.css` — shared styling
 - `login.php` / `logout.php` — authentication
-- `register.php` — admin-only: add staff, reset password, activate/deactivate staff (all three combined on one "Manage Staff" page)
+- `register.php` — admin-only: add staff, reset password (also unlocks a locked account), activate/deactivate staff (all three combined on one "Manage Account" page)
 - `homepage.php` — weekly grid view and main booking interface (click-to-select time range, AJAX submission)
 - `book_ajax.php` — AJAX endpoint that validates and inserts a booking (conflict check happens here)
 - `view_bookings.php` — all bookings, filterable by date/room; shows Edit/Cancel actions inline for admins
