@@ -2,7 +2,7 @@
 session_start();
 if (!isset($_SESSION['staff_id'])) { header("Location: login.php"); exit; }
 require "session_check.php";
-require "config.php";
+require_once "config.php";
 
 $week_start = $_GET['week_start'] ?? date('Y-m-d', strtotime('monday this week'));
 $days = [];
@@ -61,6 +61,7 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
     <title>Week View - SALAM</title>
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 </head>
 <body>
 <?php include 'header.php'; ?>
@@ -151,7 +152,7 @@ $rooms = ['Bilik Meeting' => 'MR', 'Bilik Seminar' => 'SR'];
         <h3>Book This Slot</h3>
         <p id="popup-details"></p>
         <label>Purpose:</label>
-        <input type="text" id="popup-purpose" maxlength="255" required>
+        <input type="text" id="popup-purpose" maxlength="200" required>
         <label>Your Name:</label>
         <input type="text" id="popup-booked-by" maxlength="100" placeholder="Who is making this booking?" required>
         <div style="margin-top:15px;">
@@ -291,9 +292,26 @@ async function submitQuickBooking() {
     formData.append('start_time', pending.start);
     formData.append('end_time', pending.end);
     formData.append('room', pending.room);
+    formData.append('csrf_token', document.querySelector('meta[name="csrf-token"]').content);
 
-    const response = await fetch('book_ajax.php', { method: 'POST', body: formData });
-    const data = await response.json();
+        let data;
+    try {
+        const response = await fetch('book_ajax.php', { method: 'POST', body: formData });
+        data = await response.json();
+    } catch (e) {
+        alert('Could not reach the server. Please check My Bookings before trying again.');
+        closePopup();
+        return;
+    }
+       if (data.error === 'csrf') {
+       alert(data.message);
+       location.reload();
+       return;
+   }
+   if (data.error) {
+       window.location.href = data.error === 'session_expired' ? 'login.php?timeout=1' : 'login.php';
+       return;
+   }
 
     const msg = document.getElementById('week-message');
     msg.textContent = data.message;

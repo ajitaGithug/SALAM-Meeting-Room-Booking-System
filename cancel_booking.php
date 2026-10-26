@@ -4,38 +4,43 @@ if (!isset($_SESSION['staff_id'])) {
     header("Location: login.php");
     exit;
 }
-require "config.php";
+require "session_check.php";
+require_once "config.php";
 
-$id = $_GET['id'] ?? null;
-$staff_id = $_SESSION['staff_id'];
+$from = $_POST['from'] ?? 'my';
+$redirect_page = ($from === 'view') ? "view_bookings.php" : "my_bookings.php";
 
-if ($id === null) {
-    header("Location: my_bookings.php?msg=error");
+// Opening this page by link no longer deletes anything
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: $redirect_page");
+    exit;
+}
+if (!csrf_valid()) {
+    csrf_fail();
+}
+
+$id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
+if ($id === false || $id === null) {
+    header("Location: $redirect_page?msg=error");
     exit;
 }
 
-// IMPORTANT: only delete if it belongs to the logged-in staff but admin can delete all
-if ($_SESSION['role'] === 'admin') {
+$staff_id = $_SESSION['staff_id'];
+
+if (($_SESSION['role'] ?? '') === 'admin') {
     // Admin can cancel any booking
-    $sql = "DELETE FROM bookings WHERE id = ?";
-    $stmt = $conn->prepare($sql);
+    $stmt = $conn->prepare("DELETE FROM bookings WHERE id = ?");
     $stmt->bind_param("i", $id);
 } else {
-    //regular staff can only delete their own booking
-    $sql = "DELETE FROM bookings WHERE id = ? AND staff_id = ?";
-    $stmt = $conn->prepare($sql);
+    // Regular staff can only cancel their own booking, and not one from a past day
+    $stmt = $conn->prepare("DELETE FROM bookings WHERE id = ? AND staff_id = ? AND booking_date >= CURDATE()");
     $stmt->bind_param("is", $id, $staff_id);
 }
 $stmt->execute();
-
-// Decide where to send the user back
-$from = $_GET['from'] ?? 'my';
-$redirect_page = ($from === 'view') ? "view_bookings.php" : "my_bookings.php";
 
 if ($stmt->affected_rows > 0) {
     header("Location: $redirect_page?msg=cancelled");
 } else {
     header("Location: $redirect_page?msg=error");
 }
-exit;
-?>
+exit;

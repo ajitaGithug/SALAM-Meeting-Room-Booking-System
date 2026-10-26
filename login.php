@@ -6,12 +6,17 @@ $error = "";
 $staff_id_val = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $staff_id = trim($_POST['staff_id'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $staff_id = is_string($_POST['staff_id'] ?? null) ? trim($_POST['staff_id']) : '';
+    $password = is_string($_POST['password'] ?? null) ? $_POST['password'] : '';
     $staff_id_val = $staff_id;
 
-    if (!empty($staff_id) && !empty($password)) {
-        $sql = "SELECT staff_id, staff_name, role, status, password FROM users WHERE staff_id = ?";
+    // One message for an unknown ID or a wrong password, so guessers can't tell which IDs exist
+    $bad_login = "Staff ID or password is incorrect.";
+
+    if ($staff_id !== '' && $password !== '') {
+        $sql = "SELECT staff_id, staff_name, role, status, password,
+                       (locked_until IS NOT NULL AND locked_until > NOW()) AS is_locked
+                FROM users WHERE staff_id = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $staff_id);
         $stmt->execute();
@@ -20,26 +25,47 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
 
-            if ($user['status'] === 'inactive') {
-                $error = "This account has been deactivated. Please contact an admin.";
+            if ($user['is_locked']) {
+                $error = "Too many failed attempts. Please try again in 15 minutes or contact an admin.";
             } elseif (password_verify($password, $user['password'])) {
-                session_regenerate_id(true);
+                if ($user['status'] === 'inactive') {
+                    $error = "This account has been deactivated. Please contact an admin.";
+                } else {
+                    // Correct password: clear the failed-attempt counter
+                    $reset = $conn->prepare("UPDATE users SET failed_logins = 0, locked_until = NULL WHERE staff_id = ?");
+                    $reset->bind_param("s", $user['staff_id']);
+                    $reset->execute();
+                    $reset->close();
 
-                $_SESSION['staff_id']      = $user['staff_id'];
-                $_SESSION['staff_name']    = $user['staff_name'];
-                $_SESSION['role']          = $user['role'];
-                $_SESSION['last_activity'] = time();
+                    session_regenerate_id(true);
 
-                $stmt->close();
-                $conn->close();
+                    $_SESSION['staff_id']      = $user['staff_id'];
+                    $_SESSION['staff_name']    = $user['staff_name'];
+                    $_SESSION['role']          = $user['role'];
+                    $_SESSION['last_activity'] = time();
 
-                header("Location: homepage.php");
-                exit;
+                    $stmt->close();
+                    $conn->close();
+
+                    header("Location: homepage.php");
+                    exit;
+                }
             } else {
-                $error = "Incorrect password. Please try again.";
+                // Wrong password: count it, and lock for 15 minutes on the 5th failure in a row
+                $fail = $conn->prepare(
+                    "UPDATE users
+                     SET locked_until  = IF(failed_logins + 1 >= 5, NOW() + INTERVAL 15 MINUTE, locked_until),
+                         failed_logins = IF(failed_logins + 1 >= 5, 0, failed_logins + 1)
+                     WHERE staff_id = ?"
+                );
+                $fail->bind_param("s", $user['staff_id']);
+                $fail->execute();
+                $fail->close();
+
+                $error = $bad_login;
             }
         } else {
-            $error = "No account found with that Staff ID.";
+            $error = $bad_login;
         }
         $stmt->close();
     } else {
@@ -228,26 +254,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         this.setSelectionRange(start, end);
     });
 
-    // 4. Remember Staff ID (via localStorage)
-    const rememberCheckbox = document.getElementById('remember-me');
-    const savedStaffId = localStorage.getItem('salam_saved_staff_id');
-    if (savedStaffId && !staffIdInput.value) {
-        staffIdInput.value = savedStaffId;
-        rememberCheckbox.checked = true;
-    }
-
-    // 5. Submit Loading State & Animation
+    // 4. Submit Loading State & Animation
+    localStorage.removeItem('salam_saved_staff_id'); // clear any old saved ID
     document.getElementById('login-form').addEventListener('submit', function() {
         const btn = document.getElementById('login-btn');
         const btnText = document.getElementById('btn-text');
         const loader = document.getElementById('btn-loader');
-
-        // Save or remove Staff ID in localStorage
-        if (rememberCheckbox.checked) {
-            localStorage.setItem('salam_saved_staff_id', staffIdInput.value.trim());
-        } else {
-            localStorage.removeItem('salam_saved_staff_id');
-        }
 
         btn.disabled = true;
         btn.classList.add('is-loading');
@@ -256,4 +268,4 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     });
     </script>
 </body>
-</html>
+</html>

@@ -3,47 +3,66 @@ session_start();
 header('Content-Type: application/json');
 
 if (!isset($_SESSION['staff_id'])) {
-    echo json_encode(["success" => false, "message" => "Not logged in."]);
+    http_response_code(401);
+    echo json_encode(["success" => false, "error" => "not_logged_in", "message" => "Not logged in."]);
     exit;
 }
-require "config.php";
+define('SALAM_JSON', true);   // tells session_check.php to answer in JSON, not redirect
+require "session_check.php";
+require_once "config.php";
+require_once "helpers.php";
 
-$staff_name   = $_SESSION['staff_name'];
-$staff_id     = $_SESSION['staff_id'];
-$purpose      = $_POST['purpose'];
-$booking_date = $_POST['booking_date'];
-$start_time   = $_POST['start_time'];
-$end_time     = $_POST['end_time'];
-$room         = $_POST['room'];
-$booked_by    = $_POST['booked_by'] ?? '';
-
-if ($end_time <= $start_time) {
-    echo json_encode(["success" => false, "message" => "End time must be after start time."]);
-    exit;
+if (!csrf_valid()) {
+    csrf_fail();
 }
 
-$check_sql = "SELECT * FROM bookings WHERE room = ? AND booking_date = ? AND start_time < ? AND end_time > ?";
-$stmt = $conn->prepare($check_sql);
-$stmt->bind_param("ssss", $room, $booking_date, $end_time, $start_time);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows > 0) {
-    echo json_encode(["success" => false, "message" => "Sorry, $room is already booked during that time on $booking_date."]);
+function json_fail($msg) {
+    echo json_encode(["success" => false, "message" => $msg]);
     exit;
 }
 
-$insert_sql = "INSERT INTO bookings (staff_name, staff_id, purpose, booking_date, start_time, end_time, room, booked_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($insert_sql);
-$stmt->bind_param("ssssssss", $staff_name, $staff_id, $purpose, $booking_date, $start_time, $end_time, $room, $booked_by);
-$stmt->execute();
+$is_admin  = (($_SESSION['role'] ?? '') === 'admin');
+$booked_by = (isset($_POST['booked_by']) && is_string($_POST['booked_by'])) ? trim($_POST['booked_by']) : '';
+
+if ($booked_by === '')           json_fail("Please enter your name.");
+if (mb_strlen($booked_by) > 100) json_fail("Name must be 100 characters or fewer.");
+
+[$b, $validation_error] = validate_booking($_POST, $is_admin);
+if ($validation_error !== null) json_fail($validation_error);
+
+$staff_name = $_SESSION['staff_name'];
+$staff_id   = $_SESSION['staff_id'];
+
+try {
+    if (!booking_lock($conn)) {
+        json_fail("The system is busy. Please try again in a moment.");
+    }
+
+    if (booking_conflict($conn, $b['room'], $b['booking_date'], $b['start_time'], $b['end_time'])) {
+        json_fail("Sorry, " . room_label($b['room']) . " is already booked during that time on " . $b['booking_date'] . ".");
+    }
+
+    $insert_sql = "INSERT INTO bookings (staff_name, staff_id, purpose, booking_date, start_time, end_time, room, booked_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    $stmt = $conn->prepare($insert_sql);
+    $stmt->bind_param("ssssssss", $staff_name, $staff_id, $b['purpose'], $b['booking_date'],
+                      $b['start_time'], $b['end_time'], $b['room'], $booked_by);
+    $stmt->execute();
+    $stmt->close();
+
+    booking_unlock($conn);
+} catch (Throwable $e) {
+    error_log("SALAM booking error: " . $e->getMessage());
+    json_fail("Could not save the booking. Please check My Bookings before trying again.");
+}
 
 echo json_encode([
     "success" => true,
-    "message" => "Booking confirmed for $room on $booking_date from $start_time to $end_time.",
-    "booking" => ["purpose" => $purpose, "date" => $booking_date, "start" => $start_time, "end" => $end_time, "room" => $room]
+    "message" => "Booking confirmed for " . room_label($b['room']) . " on " . $b['booking_date'] .
+                 " from " . $b['start_time'] . " to " . $b['end_time'] . ".",
+    "booking" => [
+        "purpose" => $b['purpose'], "date" => $b['booking_date'],
+        "start" => $b['start_time'], "end" => $b['end_time'], "room" => $b['room']
+    ]
 ]);
 
-$stmt->close();
 $conn->close();
-?>

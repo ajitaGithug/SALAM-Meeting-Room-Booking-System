@@ -19,14 +19,17 @@ function nav_active($page, $current) {
             <a href="homepage.php" class="<?php echo nav_active('homepage.php', $current_page); ?>">Home</a>
             <a href="my_bookings.php" class="<?php echo nav_active('my_bookings.php', $current_page); ?>">My Bookings</a>
             <a href="view_bookings.php" class="<?php echo nav_active('view_bookings.php', $current_page); ?>">View All</a>
-            <?php if ($_SESSION['role'] === 'admin'): ?>
+            <?php if (($_SESSION['role'] ?? '') === 'admin'): ?>
                 <a href="register.php" class="<?php echo nav_active('register.php', $current_page); ?>">Manage Account</a>
             <?php endif; ?>
 
             <div class="nav-user">
                 <div class="avatar"><?php echo strtoupper(substr($_SESSION['staff_name'], 0, 1)); ?></div>
                 <span class="nav-username"><?php echo htmlspecialchars($_SESSION['staff_name']); ?></span>
-                <a href="logout.php" class="logout-link">Logout</a>
+                <form method="POST" action="logout.php" class="logout-form">
+                    <?php echo csrf_field(); ?>
+                    <button type="submit" class="logout-link">Logout</button>
+                </form>
             </div>
         </div>
     </div>
@@ -41,13 +44,16 @@ window.addEventListener('scroll', function() {
     document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 8);
 });
 
-const backToTopBtn = document.getElementById('back-to-top');
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopBtn = document.getElementById('back-to-top');
+    if (!backToTopBtn) return;
 
-window.addEventListener('scroll', function() {
-    backToTopBtn.classList.toggle('visible', window.scrollY > 300);
-});
+    window.addEventListener('scroll', function() {
+        backToTopBtn.classList.toggle('visible', window.scrollY > 300);
+    });
 
-backToTopBtn.addEventListener('click', function() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 });
 </script>

@@ -7,7 +7,7 @@ if (!isset($_SESSION['staff_id'])) {
     exit;
 }
 require "session_check.php"; // session timer
-require "config.php"; // establish connection with database
+require_once "config.php"; // establish connection with database
 
 // Read filter values from the URL (if any were submitted)
 $filter_date = $_GET['filter_date'] ?? '';
@@ -114,7 +114,13 @@ $result = $stmt->get_result();
                             <?php if ($is_admin): ?>
                                 <td class="actions">
                                     <a href="edit_booking.php?id=<?php echo $row['id']; ?>&from=view" class="action-btn edit-btn">Edit</a>
-                                    <a href="cancel_booking.php?id=<?php echo $row['id']; ?>&from=view" class="action-btn cancel-btn" onclick="return confirm('Cancel this booking?');">Cancel</a>
+                                    <form method="POST" action="cancel_booking.php" class="inline-form"
+                                        onsubmit="return confirm(<?php echo htmlspecialchars(json_encode('Cancel "' . $row['purpose'] . '" on ' . date('d M Y', strtotime($row['booking_date'])) . '?'), ENT_QUOTES); ?>);">
+                                        <?php echo csrf_field(); ?>
+                                        <input type="hidden" name="id" value="<?php echo (int)$row['id']; ?>">
+                                        <input type="hidden" name="from" value="view">
+                                        <button type="submit" class="action-btn cancel-btn">Cancel</button>
+                                    </form>
                                 </td>
                             <?php endif; ?>
                         </tr>
