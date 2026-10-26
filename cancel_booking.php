@@ -32,8 +32,8 @@ if (($_SESSION['role'] ?? '') === 'admin') {
     $stmt = $conn->prepare("DELETE FROM bookings WHERE id = ?");
     $stmt->bind_param("i", $id);
 } else {
-    // Regular staff can only cancel their own booking
-    $stmt = $conn->prepare("DELETE FROM bookings WHERE id = ? AND staff_id = ?");
+    // Regular staff can only cancel their own booking, and not one from a past day
+    $stmt = $conn->prepare("DELETE FROM bookings WHERE id = ? AND staff_id = ? AND booking_date >= CURDATE()");
     $stmt->bind_param("is", $id, $staff_id);
 }
 $stmt->execute();
@@ -43,4 +43,4 @@ if ($stmt->affected_rows > 0) {
 } else {
     header("Location: $redirect_page?msg=error");
 }
-exit;
+exit;

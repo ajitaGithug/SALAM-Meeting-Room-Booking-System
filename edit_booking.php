@@ -6,19 +6,21 @@ if (!isset($_SESSION['staff_id'])) {
 }
 require "session_check.php";
 require_once "config.php";
+require_once "helpers.php";
 
 $staff_id = $_SESSION['staff_id'];
-$id = $_GET['id'] ?? $_POST['id'] ?? null;
-$from = $_GET['from'] ?? $_POST['from'] ?? 'my';
+$is_admin = (($_SESSION['role'] ?? '') === 'admin');
+$id = filter_var($_GET['id'] ?? $_POST['id'] ?? null, FILTER_VALIDATE_INT);
+$from = (($_GET['from'] ?? $_POST['from'] ?? 'my') === 'view') ? 'view' : 'my';
 $error = "";
 
-if ($id === null) {
+if ($id === false || $id === null) {
     header("Location: my_bookings.php?msg=error");
     exit;
 }
 
 // Fetch the existing booking, but only if it belongs to this staff member
-if ($_SESSION['role'] === 'admin') {
+if ($is_admin) {
     $sql = "SELECT * FROM bookings WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
@@ -40,30 +42,37 @@ $booking = $result->fetch_assoc();
 // Handle the update when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (!csrf_valid()) { csrf_fail(); }
-    $purpose      = $_POST['purpose'];
-    $booking_date = $_POST['booking_date'];
-    $start_time   = $_POST['start_time'];
-    $end_time     = $_POST['end_time'];
-    $room         = $_POST['room'];
+    $post_str = function ($key) {
+        return (isset($_POST[$key]) && is_string($_POST[$key])) ? $_POST[$key] : '';
+    };
+    $purpose      = $post_str('purpose');
+    $booking_date = $post_str('booking_date');
+    $start_time   = $post_str('start_time');
+    $end_time     = $post_str('end_time');
+    $room         = $post_str('room');
 
-    if ($end_time <= $start_time) {
-        $error = "End time must be after start time.";
+    [$b, $validation_error] = validate_booking($_POST, $is_admin);
+
+    if (!$is_admin && strtotime($booking['booking_date'] . ' ' . $booking['end_time']) <= time()) {
+        $error = "Past bookings can't be changed.";
+    } elseif ($validation_error !== null) {
+        $error = $validation_error;
+    } elseif (!booking_lock($conn)) {
+        $error = "The system is busy. Please try again in a moment.";
     } else {
-        // Conflict check — same as before, but EXCLUDE this booking's own id
-        $check_sql = "SELECT * FROM bookings 
-                      WHERE room = ? AND booking_date = ? 
-                      AND start_time < ? AND end_time > ?
-                      AND id != ?";
-        $stmt2 = $conn->prepare($check_sql);
-        $stmt2->bind_param("ssssi", $room, $booking_date, $end_time, $start_time, $id);
-        $stmt2->execute();
-        $conflict_result = $stmt2->get_result();
+        $purpose      = $b['purpose'];
+        $booking_date = $b['booking_date'];
+        $start_time   = $b['start_time'];
+        $end_time     = $b['end_time'];
+        $room         = $b['room'];
 
-        if ($conflict_result->num_rows > 0) {
-            $error = "Sorry, $room is already booked during that time on $booking_date.";
+        // Conflict check — EXCLUDE this booking's own id
+        if (booking_conflict($conn, $room, $booking_date, $start_time, $end_time, $id)) {
+            booking_unlock($conn);
+            $error = "Sorry, " . room_label($room) . " is already booked during that time on $booking_date.";
         } else {
             // No conflict — update the booking (admin can update all)
-            if ($_SESSION['role'] === 'admin') {
+            if ($is_admin) {
                 $update_sql = "UPDATE bookings 
                                SET purpose = ?, booking_date = ?, start_time = ?, end_time = ?, room = ?
                                WHERE id = ?";
@@ -79,7 +88,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $redirect_page = ($from === 'view') ? "view_bookings.php" : "my_bookings.php";
 
-            if ($stmt3->execute()) {
+            try {
+                $saved = $stmt3->execute();
+            } catch (Throwable $e) {
+                error_log("SALAM edit error: " . $e->getMessage());
+                $saved = false;
+            }
+            booking_unlock($conn);
+
+            if ($saved) {
                 header("Location: $redirect_page?msg=updated");
                 exit;
             } else {
@@ -207,4 +224,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
     </script>
 </body>
-</html>
+</html>
