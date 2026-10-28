@@ -9,6 +9,13 @@ require_once "config.php";
 
 $from = $_POST['from'] ?? 'my';
 $redirect_page = ($from === 'view') ? "view_bookings.php" : "my_bookings.php";
+if ($from === 'home') {
+    // Go back to the same week on the booking grid
+    $ws = $_POST['week_start'] ?? '';
+    $redirect_page = (is_string($ws) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $ws))
+        ? "homepage.php?week_start=$ws" : "homepage.php";
+}
+$sep = (strpos($redirect_page, '?') === false) ? '?' : '&';
 
 // Opening this page by link no longer deletes anything
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {
@@ -21,7 +28,7 @@ if (!csrf_valid()) {
 
 $id = filter_var($_POST['id'] ?? null, FILTER_VALIDATE_INT);
 if ($id === false || $id === null) {
-    header("Location: $redirect_page?msg=error");
+    header("Location: {$redirect_page}{$sep}msg=error");
     exit;
 }
 
@@ -39,8 +46,8 @@ if (($_SESSION['role'] ?? '') === 'admin') {
 $stmt->execute();
 
 if ($stmt->affected_rows > 0) {
-    header("Location: $redirect_page?msg=cancelled");
+    header("Location: {$redirect_page}{$sep}msg=cancelled");
 } else {
-    header("Location: $redirect_page?msg=error");
+    header("Location: {$redirect_page}{$sep}msg=error");
 }
-exit;
+exit;

@@ -20,6 +20,7 @@ require_once "config.php";
 $register_message = "";
 $reset_message = "";
 $toggle_message = "";
+$register_ok = $reset_ok = $toggle_ok = false;   // green box when true, red box when false
 
 // Handle new Account registration
 if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST['action'] ?? '') === 'register') {
@@ -48,6 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST['action'] ?? '') === 'regist
 
             if ($stmt->execute()) {
                 $register_message = "Account created for $staff_name ($staff_id).";
+                $register_ok = true;
             } else {
                 $register_message = "Error: could not create the account.";
             }
@@ -72,6 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST['action'] ?? '') === 'reset'
 
         if ($stmt->execute() && $stmt->affected_rows > 0) {
             $reset_message = "Password updated for $target_staff_id.";
+            $reset_ok = true;
         } else {
             $reset_message = "Staff ID not found or no change made.";
         }
@@ -93,7 +96,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && ($_POST['action'] ?? '') === 'toggle
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ss", $new_status, $target_staff_id);
         $stmt->execute();
-        $toggle_message = "Staff ID $target_staff_id is now $new_status.";
+        if ($stmt->affected_rows > 0) {
+            $toggle_message = "Staff ID $target_staff_id is now $new_status.";
+            $toggle_ok = true;
+        } else {
+            $toggle_message = "Staff ID not found or no change made.";
+        }
         $stmt->close();
     }
 }
@@ -119,7 +127,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
             <div class="card">
                 <h3>Add New Account</h3>
                 <?php if ($register_message): ?>
-                    <div class="success"><?php echo htmlspecialchars($register_message); ?></div>
+                    <div class="<?php echo $register_ok ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($register_message); ?></div>
                 <?php endif; ?>
                 <form method="POST">
                     <input type="hidden" name="action" value="register">
@@ -133,6 +141,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
 
                     <label>Password:</label>
                     <input type="password" name="password" required minlength="8">
+                    <small class="field-help">At least 8 characters.</small>
 
                     <button type="submit">Register Account</button>
                 </form>
@@ -141,7 +150,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
             <div class="card">
                 <h3>Reset Account Password</h3>
                 <?php if ($reset_message): ?>
-                    <div class="success"><?php echo htmlspecialchars($reset_message); ?></div>
+                    <div class="<?php echo $reset_ok ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($reset_message); ?></div>
                 <?php endif; ?>
                 <form method="POST">
                     <input type="hidden" name="action" value="reset">
@@ -162,6 +171,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
 
                     <label>New Password:</label>
                     <input type="password" name="new_password" required minlength="8">
+                    <small class="field-help">At least 8 characters. This also unlocks a locked account.</small>
 
                     <button type="submit">Update Password</button>
                 </form>
@@ -170,7 +180,7 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
             <div class="card">
                 <h3>Manage Account Status</h3>
                 <?php if ($toggle_message): ?>
-                    <div class="success"><?php echo htmlspecialchars($toggle_message); ?></div>
+                    <div class="<?php echo $toggle_ok ? 'success' : 'error'; ?>"><?php echo htmlspecialchars($toggle_message); ?></div>
                 <?php endif; ?>
 
                 <table>
@@ -204,4 +214,4 @@ $users_result = $conn->query("SELECT staff_id, staff_name, status FROM users ORD
 
     <?php $conn->close(); ?>
 </body>
-</html>
+</html>
