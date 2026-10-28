@@ -93,8 +93,27 @@ function slot_is_past($date, $slot_end, $today, $now) {
 </head>
 <body>
 <?php include 'header.php'; ?>
-<div class="container" style="max-width: 1300px;">
-    <h2>Weekly Booking Overview</h2>
+<div class="container grid-page">
+    <div class="grid-top">
+        <h2>Weekly Booking Overview</h2>
+
+        <div class="week-toolbar">
+            <div class="week-nav">
+                <a href="homepage.php?week_start=<?php echo $prev_week; ?>" class="week-btn">&laquo; Previous Week</a>
+                <a href="homepage.php?week_start=<?php echo $this_monday; ?>" class="week-btn week-btn-current">This Week</a>
+                <a href="homepage.php?week_start=<?php echo $next_week; ?>" class="week-btn">Next Week &raquo;</a>
+            </div>
+            <div class="week-range">
+                <?php echo $week_label; ?>
+                <?php if ($week_start === $this_monday): ?><span class="week-badge">This week</span><?php endif; ?>
+            </div>
+            <form method="GET" class="jump-form">
+                <label for="jump-date">Jump to date</label>
+                <input type="date" id="jump-date" name="week_start" value="<?php echo $week_start; ?>"
+                       onchange="if (this.value) this.form.submit();">
+            </form>
+        </div>
+    </div>
 
     <?php if (($_GET['msg'] ?? '') === 'cancelled'): ?>
         <div class="success">Booking cancelled successfully.</div>
@@ -105,36 +124,19 @@ function slot_is_past($date, $slot_end, $today, $now) {
     <?php endif; ?>
     <div id="week-message" style="display:none;" class="success"></div>
 
-    <div class="week-nav">
-        <a href="homepage.php?week_start=<?php echo $prev_week; ?>" class="week-btn">&laquo; Previous Week</a>
-        <a href="homepage.php?week_start=<?php echo $this_monday; ?>" class="week-btn week-btn-current">This Week</a>
-        <a href="homepage.php?week_start=<?php echo $next_week; ?>" class="week-btn">Next Week &raquo;</a>
-    </div>
-
-    <div class="week-toolbar">
-        <div class="week-range">
-            <?php echo $week_label; ?>
-            <?php if ($week_start === $this_monday): ?><span class="week-badge">This week</span><?php endif; ?>
+    <div class="grid-info">
+        <p class="grid-hint" id="grid-hint">
+            <strong>To book:</strong> click a start time, then an end time in the same column
+            (same slot twice = 30 min). Click a booked slot for details.
+        </p>
+        <div class="grid-legend">
+            <span><i class="swatch swatch-meeting"></i>Meeting free</span>
+            <span><i class="swatch swatch-seminar"></i>Seminar free</span>
+            <span><i class="swatch swatch-booked"></i>Booked</span>
+            <span><i class="swatch swatch-mine"></i>Your account</span>
+            <span><i class="swatch swatch-past"></i>Passed</span>
         </div>
-        <form method="GET" class="jump-form">
-            <label for="jump-date">Jump to date</label>
-            <input type="date" id="jump-date" name="week_start" value="<?php echo $week_start; ?>"
-                   onchange="if (this.value) this.form.submit();">
-        </form>
     </div>
-
-    <div class="grid-legend">
-        <span><i class="swatch swatch-meeting"></i>Meeting room free</span>
-        <span><i class="swatch swatch-seminar"></i>Seminar room free</span>
-        <span><i class="swatch swatch-booked"></i>Booked</span>
-        <span><i class="swatch swatch-mine"></i>Booked by your account</span>
-        <span><i class="swatch swatch-past"></i>Time has passed</span>
-    </div>
-
-    <p class="grid-hint" id="grid-hint">
-        <strong>To book:</strong> click a start time, then click an end time in the same column.
-        Click the same slot twice for a 30-minute meeting. Click a booked slot to see its details.
-    </p>
 
 <!-- Mobile day tabs -->
     <div class="day-tabs">
@@ -145,7 +147,7 @@ function slot_is_past($date, $slot_end, $today, $now) {
         <?php endforeach; ?>
     </div>
 
-    <div style="overflow-x:auto;">
+    <div class="grid-wrap">
         <table class="week-grid">
             <tr>
                 <th rowspan="2">Time</th>

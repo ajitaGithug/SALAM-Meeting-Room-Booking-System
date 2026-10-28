@@ -1604,3 +1604,200 @@ tr.row-past td {
         text-align: center;
     }
 }
+
+/* ===================================================
+   ===== Booking grid fits the screen (no page scroll) =====
+=================================================== */
+.grid-page {
+    max-width: 1300px;
+}
+
+.grid-wrap {
+    overflow-x: auto;
+}
+
+.grid-top .week-nav {
+    margin: 0;
+}
+
+.grid-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin-bottom: 10px;
+}
+
+.grid-info .grid-hint {
+    flex: 1 1 420px;
+    margin: 0;
+}
+
+.grid-info .grid-legend {
+    margin: 0;
+}
+
+/* Desktop and laptop: use the full width and stretch the grid to the window height */
+@media (min-width: 701px) and (min-height: 600px) {
+    .container.grid-page {
+        max-width: none;
+        margin: 12px 16px;
+        padding: 14px 22px;
+        height: calc(100vh - 64px - 24px);   /* window minus navbar and margins */
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .grid-page > * {
+        flex-shrink: 0;
+    }
+
+    .grid-top {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+    }
+
+    .grid-top h2 {
+        margin: 0;
+        padding: 0;
+        border: none;
+        font-size: 20px;
+        white-space: nowrap;
+    }
+
+    .grid-top .week-toolbar {
+        flex: 1;
+        margin: 0;
+    }
+
+    .grid-page .success,
+    .grid-page .error {
+        margin: 0;
+        padding: 6px 12px;
+    }
+
+    .grid-info {
+        margin: 0;
+    }
+
+    .grid-info .grid-hint {
+        padding: 5px 10px;
+        font-size: 12.5px;
+    }
+
+    .grid-page .grid-wrap {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+    }
+
+    .grid-page .week-grid {
+        height: 100%;
+        margin-top: 0;
+        table-layout: fixed;   /* every day and room column gets the same width */
+    }
+
+    .grid-page .week-grid tr:first-child th:first-child {
+        width: 84px;
+    }
+
+    .grid-page .week-grid .cell.booked {
+        padding: 2px 4px;
+    }
+
+    .grid-page .week-grid th,
+    .grid-page .week-grid td {
+        padding: 2px 4px;
+        line-height: 1.15;
+    }
+
+    .grid-page .booked-title {
+        line-height: 1.15;
+    }
+
+    .grid-page .booked-staff {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 700px) {
+    .grid-top .week-nav {
+        width: 100%;
+    }
+}
+
+/* ===================================================
+   ===== Manage Account =====
+=================================================== */
+.accounts-card {
+    margin-top: 30px;
+}
+
+.accounts-head {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-bottom: 12px;
+}
+
+.accounts-head h3 {
+    margin: 0;
+}
+
+.accounts-head input {
+    margin-left: auto;
+    width: 240px;
+    max-width: 100%;
+}
+
+.role-tag {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.role-tag.role-admin {
+    background: #1c3f60;
+    color: #ffffff;
+}
+
+.role-tag.role-staff {
+    background: #eaf0f6;
+    color: #1c3f60;
+}
+
+.status-locked {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #fff4e0;
+    color: #a35d00;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.unlock-btn {
+    background-color: #5b7a99;
+}
+
+.unlock-btn:hover {
+    background-color: #46627e;
+}
+
+tr.row-me td {
+    background-color: #f3faf5;
+}
+
+@media (max-width: 700px) {
+    .accounts-head input {
+        margin-left: 0;
+        width: 100%;
+    }
+}
