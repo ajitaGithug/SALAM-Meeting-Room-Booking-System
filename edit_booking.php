@@ -11,8 +11,21 @@ require_once "helpers.php";
 $staff_id = $_SESSION['staff_id'];
 $is_admin = (($_SESSION['role'] ?? '') === 'admin');
 $id = filter_var($_GET['id'] ?? $_POST['id'] ?? null, FILTER_VALIDATE_INT);
-$from = (($_GET['from'] ?? $_POST['from'] ?? 'my') === 'view') ? 'view' : 'my';
+$from = $_GET['from'] ?? $_POST['from'] ?? 'my';
+$from = in_array($from, ['my', 'view', 'home'], true) ? $from : 'my';
+$week_start = $_GET['week_start'] ?? $_POST['week_start'] ?? '';
+$week_start = (is_string($week_start) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $week_start)) ? $week_start : '';
 $error = "";
+
+// Where "Cancel" and a successful save go back to
+if ($from === 'view') {
+    $back_page = "view_bookings.php";
+} elseif ($from === 'home') {
+    $back_page = "homepage.php" . ($week_start !== '' ? "?week_start=$week_start" : "");
+} else {
+    $back_page = "my_bookings.php";
+}
+$back_sep = (strpos($back_page, '?') === false) ? '?' : '&';
 
 if ($id === false || $id === null) {
     header("Location: my_bookings.php?msg=error");
@@ -34,7 +47,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($result->num_rows === 0) {
-      header("Location: " . ($from === 'view' ? 'view_bookings.php' : 'my_bookings.php') . "?msg=error");
+      header("Location: {$back_page}{$back_sep}msg=error");
   exit;
 }
 $booking = $result->fetch_assoc();
@@ -86,8 +99,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt3->bind_param("sssssis", $purpose, $booking_date, $start_time, $end_time, $room, $id, $staff_id);
             }
 
-            $redirect_page = ($from === 'view') ? "view_bookings.php" : "my_bookings.php";
-
             try {
                 $saved = $stmt3->execute();
             } catch (Throwable $e) {
@@ -97,7 +108,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             booking_unlock($conn);
 
             if ($saved) {
-                header("Location: $redirect_page?msg=updated");
+                if ($from === 'home') {
+                    // Show the week the booking is now in
+                    $redirect_page = "homepage.php?week_start=$booking_date&";
+                } else {
+                    $redirect_page = $back_page . $back_sep;
+                }
+                header("Location: {$redirect_page}msg=updated");
                 exit;
             } else {
                 $error = "Something went wrong. Please try again.";
@@ -139,12 +156,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <?php echo csrf_field(); ?>
                 <input type="hidden" name="id" value="<?php echo (int)$booking['id']; ?>">
                 <input type="hidden" name="from" value="<?php echo htmlspecialchars($from); ?>">
+                <input type="hidden" name="week_start" value="<?php echo htmlspecialchars($week_start); ?>">
 
                 <label>Purpose</label>
                 <input type="text" name="purpose" value="<?php echo htmlspecialchars($booking['purpose']); ?>" required>
 
                 <label>Date</label>
-                <input type="date" name="booking_date" value="<?php echo htmlspecialchars($booking['booking_date']); ?>" required>
+                <input type="date" name="booking_date" id="booking_date" value="<?php echo htmlspecialchars($booking['booking_date']); ?>"
+                    <?php if (!$is_admin): ?>min="<?php echo date('Y-m-d'); ?>"<?php endif; ?> required>
 
                 <div class="time-row">
                     <div>
@@ -190,7 +209,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 <div class="form-actions">
                     <button type="submit">Save Changes</button>
-                    <a href="<?php echo $from === 'view' ? 'view_bookings.php' : 'my_bookings.php'; ?>" class="cancel-link">Cancel</a>
+                    <a href="<?php echo htmlspecialchars($back_page); ?>" class="cancel-link">Cancel</a>
                 </div>
             </form>
         </div>
@@ -201,17 +220,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     const endSelect = document.getElementById('end_time');
     const preview = document.getElementById('time-preview');
 
+    const dateInput = document.getElementById('booking_date');
+
+    // Grey out end times that are not after the chosen start time
+    function syncEndOptions() {
+        Array.from(endSelect.options).forEach(o => { o.disabled = o.value <= startSelect.value; });
+        if (endSelect.value <= startSelect.value) {
+            const next = Array.from(endSelect.options).find(o => !o.disabled);
+            if (next) endSelect.value = next.value;
+        }
+    }
+
     function updatePreview() {
         const startText = startSelect.options[startSelect.selectedIndex].text;
         const endText = endSelect.options[endSelect.selectedIndex].text;
         const valid = endSelect.value > startSelect.value;
+        const day = dateInput.value ? new Date(dateInput.value + 'T00:00:00').getDay() : 1;
+        const weekend = (day === 0 || day === 6);
 
-        preview.textContent = valid
-            ? `Meeting runs from ${startText} to ${endText}`
-            : `End time must be after start time`;
-        preview.className = valid ? 'time-preview valid' : 'time-preview invalid';
+        const toMin = hm => { const [h, m] = hm.split(':').map(Number); return h * 60 + m; };
+        const mins = toMin(endSelect.value) - toMin(startSelect.value);
+        const h = Math.floor(mins / 60), m = mins % 60;
+        const length = (h ? h + 'h' : '') + (h && m ? ' ' : '') + (m ? m + 'm' : '');
+
+        if (weekend) {
+            preview.textContent = 'Bookings are only available Monday to Friday';
+        } else {
+            preview.textContent = valid
+                ? `Meeting runs from ${startText} to ${endText} (${length})`
+                : `End time must be after start time`;
+        }
+        preview.className = (valid && !weekend) ? 'time-preview valid' : 'time-preview invalid';
     }
 
+    startSelect.addEventListener('change', syncEndOptions);
+    dateInput.addEventListener('change', updatePreview);
+    syncEndOptions();
     startSelect.addEventListener('change', updatePreview);
     endSelect.addEventListener('change', updatePreview);
     updatePreview();
@@ -224,4 +268,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     });
     </script>
 </body>
-</html>
+</html>

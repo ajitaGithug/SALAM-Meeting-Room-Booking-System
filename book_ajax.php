@@ -47,6 +47,7 @@ try {
     $stmt->bind_param("ssssssss", $staff_name, $staff_id, $b['purpose'], $b['booking_date'],
                       $b['start_time'], $b['end_time'], $b['room'], $booked_by);
     $stmt->execute();
+    $new_id = $stmt->insert_id;
     $stmt->close();
 
     booking_unlock($conn);
@@ -60,7 +61,7 @@ echo json_encode([
     "message" => "Booking confirmed for " . room_label($b['room']) . " on " . $b['booking_date'] .
                  " from " . $b['start_time'] . " to " . $b['end_time'] . ".",
     "booking" => [
-        "purpose" => $b['purpose'], "date" => $b['booking_date'],
+        "id" => $new_id, "purpose" => $b['purpose'], "date" => $b['booking_date'],
         "start" => $b['start_time'], "end" => $b['end_time'], "room" => $b['room']
     ]
 ]);
